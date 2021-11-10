@@ -16,6 +16,14 @@
 #     [3, 4, 5, 6, 7]
 # =============================================================================
 from veriga_vozlov import Vozel, dodaj_na_konec, dodaj_na_zacetek, vrni_seznam, iz_seznama
+
+def stevilska_veriga(a, b):
+    v = Vozel(a)
+    while a < b:
+        a += 1
+        dodaj_na_konec(v, a)
+    return v
+
 # =====================================================================@029183=
 # 2. podnaloga
 # Sestavite funkcijo `sodi_in_lihi(v)`, ki kot argument prejme referenco na
@@ -30,6 +38,27 @@ from veriga_vozlov import Vozel, dodaj_na_konec, dodaj_na_zacetek, vrni_seznam, 
 #     >>> v2.vrni_seznam()
 #     [7, 5, 1, 3, 9]
 # =============================================================================
+
+def sodi_in_lihi(v):
+    s = 0
+    l = 0
+    while v.naslednji is not None:
+        print(v.podatek)
+        if v.podatek % 2 == 0:
+            if s == 0:
+                v1 = Vozel(v.podatek)
+            else:
+                dodaj_na_konec(v1, v.podatek)
+            s += 1
+        else:
+            if l == 0:
+                v2 = Vozel(v.podatek)
+            else:
+                dodaj_na_konec(v2, v.podatek)
+            l += 1
+        v = v.naslednji
+
+    return v1, v2
 
 # =====================================================================@029184=
 # 3. podnaloga

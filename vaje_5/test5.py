@@ -1,22 +1,13 @@
-class Vozel:
-    """
-    Osnovni sestavni del verižnega seznama.
-    """
-    def __init__(self, podatek, naslednji=None):
-        self.podatek = podatek
-        self.naslednji = naslednji
-
-    def __str__(self):
-        if self.naslednji is not None:
-            return '{} -> {}'.format(self.podatek, self.naslednji)
-        else:
-            return '{} -> X'.format(self.podatek)
-
+from veriga_vozlov import Vozel, dodaj_na_konec, dodaj_na_zacetek, vrni_seznam, iz_seznama
 
 v = Vozel(1)
-w = Vozel(2)
-v.naslednji()
-print(v.naslednji())
+v.naslednji = Vozel(4)
 
-def vrni_seznam(prvi):
-    return None
+
+w = None
+dodaj_na_konec(w, 1)
+print(w)
+
+k = dodaj_na_konec(None, 1)
+print(k)
+

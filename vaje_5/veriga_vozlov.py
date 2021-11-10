@@ -49,6 +49,16 @@ class Vozel:
         else:
             return '{} -> X'.format(self.podatek)
 
+    def add_end(self, data):
+        v = Vozel(data)
+        if self.podatek is None:
+            self.podatek = v
+        else:
+            n = self.podatek
+            while n.naslednji is not None:
+                n = n.naslednji
+            n.naslednji = v
+
 
 def vrni_seznam_test(prvi):
     print(prvi, Vozel(3, Vozel(2, None)))
@@ -105,14 +115,16 @@ def dodaj_na_zacetek(prvi, x):
 # =============================================================================
 
 def dodaj_na_konec(prvi, x):
+    """
+    Dodaj nov vozel na konec verižnega seznama.
+    """
     if prvi is None:
         return Vozel(x)
-    else:
-        while prvi.naslednji is not None:
-            prvi = prvi.naslednji
-        prvi.naslednji = Vozel(x)
-        print(prvi)
-        return prvi
+    vozel = prvi
+    while vozel.naslednji is not None:
+        vozel = vozel.naslednji
+    vozel.naslednji = Vozel(x)
+    return prvi
 
 
 # =====================================================================@029181=
@@ -126,6 +138,15 @@ def dodaj_na_konec(prvi, x):
 #     >>> vrni_seznam(v)
 #     ['torek', 'sreda', 'četrtek', 'petek', 'sobota']
 # =============================================================================
+
+def iz_seznama(seznam):
+    if seznam == []:
+        return None
+    else:
+        v = Vozel(seznam[0])
+        for i in seznam[1:]:
+            dodaj_na_konec(v, i)
+        return v
 
 
 # ============================================================================@

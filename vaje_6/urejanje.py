@@ -1,3 +1,4 @@
+import random
 
 from merilnik import izmeri_cas, izpisi_case, oceni_potreben_cas, narisi_in_pokazi_graf, test_gen_sez, test_fun_kvad
 
@@ -37,8 +38,9 @@ def urejanje_z_zlivanjem(tab):
             j += 1
             k += 1
 
-primer = test_gen_sez(10)
-urejanje_z_zlivanjem(primer)
-print(primer)
 
+primer = test_gen_sez(100)
+sez_n = [1000 * i for i in range(10)]
+#narisi_in_pokazi_graf(urejanje_z_zlivanjem, test_gen_sez, sez_n)
+narisi_in_pokazi_graf(urejanje_z_mehurcki, test_gen_sez, sez_n)
 

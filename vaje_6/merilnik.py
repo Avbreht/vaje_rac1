@@ -10,7 +10,7 @@ def izmeri_cas(fun, primer):
     # čas pred izračunom funkcije in čas po končanem izračunu, vam razlika
     # časov pove čas izvajanja.
     x = time.time()
-    fun(primer)
+    d = fun(primer)
     y = time.time()
     return y - x
 
@@ -19,7 +19,9 @@ def oceni_potreben_cas(fun, gen_primerov, n, k):
     """ Funkcija oceni potreben čas za izvedbo funkcije `fun` na primerih
     dolžine `n`. Za oceno generira primere primerne dolžine s klicom
     `gen_primerov(n)`, in vzame povprečje časa za `k` primerov. """
-    tab = [gen_primerov(n) * i for i in range(k)]
+    tab = []
+    for _ in range(k):
+        tab.append(gen_primerov(n))
     # NAMIG: `k`-krat generirajte nov testni primer velikosti `n` s klicem
     # `gen_primerov(n)` in izračunajte povprečje časa, ki ga funkcija porabi za
     # te testne primere.
@@ -41,8 +43,9 @@ def narisi_in_pokazi_graf(fun, gen_primerov, sez_n, k=10):
     sez_y = []
     for i in sez_n:
         sez_y.append(oceni_potreben_cas(fun, gen_primerov, i, k))
+    print(sez_n, sez_y)
     graf = plt.plot(sez_n, sez_y, 'r')
-    plt.show(graf)
+    plt.show()
 
 
 def izpisi_case(fun, gen_primerov, sez_n, k=10):
@@ -51,7 +54,9 @@ def izpisi_case(fun, gen_primerov, sez_n, k=10):
     ponovitev. """
 
     # Seznam časov, ki jih želimo tabelirati
-    casi = [izmeri_cas(fun, gen_primerov(sez_n))]  # DOPOLNITE KODO
+    casi = []  # DOPOLNITE KODO
+    for i in sez_n:
+        casi.append(oceni_potreben_cas(fun, gen_primerov, i, k))
 
     # za lepšo poravnavo izračunamo širino levega stolpca
     pad = None  # DOPOLNITE KODO
@@ -69,8 +74,7 @@ def izpisi_case(fun, gen_primerov, sez_n, k=10):
 
     # izpiši vrstice
     # DOPOLNITE KODO
-
-    raise NotImplementedError
+    return casi
 
 
 # -----------------------------------------------------------------------------
@@ -104,6 +108,7 @@ def test_gen_sez(n):
 
 
 if __name__ == '__main__':
-    #print(izmeri_cas(test_fun_kvad, [1,2,3,4,5]))
-    #print(oceni_potreben_cas(test_fun_kvad, test_gen_sez, 10, 10))
-    print(narisi_in_pokazi_graf(test_fun_kvad, test_gen_sez(10), [10,20,30,40,50], 5))
+    print(izmeri_cas(test_fun_kvad, test_gen_sez(300)))
+    print(oceni_potreben_cas(test_fun_kvad, test_gen_sez, 300, 10))
+    print(narisi_in_pokazi_graf(test_fun_kvad, test_gen_sez, [10,100,200,300,400,500,1000], 10))
+

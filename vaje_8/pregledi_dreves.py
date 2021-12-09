@@ -1,63 +1,96 @@
 # =============================================================================
-# Največja podvsota matrike
-# =====================================================================@029238=
+# Pregledi dreves
+#
+# V vseh spodnjih primerih delovanja funkcij je `d` dvojiško drevo na spodnji
+# sliki:
+# 
+#          5
+#        /   \
+#       3     2
+#      /     / \
+#     1     6   9
+# 
+# *Namig:* spomnite se ukazov `yield` in `yield from`.
+# =====================================================================@029256=
 # 1. podnaloga
-# Sestavite funkcijo `matrika_delnih_vsot(matrika)`, ki vrne matriko delnih
-# vsot, v kateri je na vsakem mestu vsota vseh elementov v bloku levo zgoraj od
-# danega mesta. Na primer, če je `matrika` enaka
+# Sestavite generator `premi_pregled(drevo)`, ki vrača podatke v vozliščih
+# drevesa v _premem vrstnem redu_ (pre-order). To pomeni, da najprej obiščemo
+# koren drevesa, nato levo poddrevo in na koncu še desno poddrevo. Vozlišča
+# poddreves obiskujemo po enakem pravilu. Zgled:
 # 
-#      1  2 -1
-#     -5  4  6
-#      2  0  1
-# 
-# mora funkcija vrniti matriko
-# 
-#      1  3  2
-#     -4  2  7
-#     -2  4  10
-# 
-# Če želite uspešno rešiti zadnji del naloge, mora funkcija delovati v
-# linearnem času (v odvisnosti od velikosti matrike).
+#     >>> [x for x in premi_pregled(d)]
+#     [5, 3, 1, 2, 6, 9]
 # =============================================================================
 
-def matrika_delnih_vsot(matrika):
-    m = len(matrika)
-    n = len(matrika[0])
-    delneVsote = matrika
-    for i in range(m):
-        for j in range(n):
-            dVsota = matrika[i][j]
-            dVsota += delneVsote[i - 1][j] if i != 0 else 0
-            dVsota += delneVsote[i][j - 1] if j != 0 else 0
-            dVsota -= delneVsote[i - 1][j - 1] if i != 0 and j != 0 else 0
-
-            delneVsote[i][j] = dVsota
-    return delneVsote
+from dvojisko_drevo import Drevo
 
 
+def premi_pregled(drevo):
+    if not drevo.prazno:
+        yield drevo.podatek
+        yield from premi_pregled(drevo.levo)
+        yield from premi_pregled(drevo.desno)
 
-# =====================================================================@029239=
+
+# =====================================================================@029257=
 # 2. podnaloga
-# Sestavite funkcijo `vsota_podmatrike(delne_vsote, i1, j1, i2, j2)`, ki iz
-# matrike delnih vsot, kot jo izračuna prejšnja funkcija, v konstantnem času
-# izračuna vsoto vseh elementov med vrsticami `i1` (vključno) in `i2` (brez) ter
-# stolpci `j1` (vključno) in `j2` (brez).
+# Sestavite generator `vmesni_pregled(self)`, ki vrača podatke v vozliščih
+# drevesa v _vmesnem vrstnem redu_ (in-order). To pomeni, da najprej obiščemo
+# levo poddrevo, nato koren drevesa in na koncu še desno poddrevo. Vozlišča
+# poddreves obiskujemo po enakem pravilu. Zgled:
 # 
-# Natančneje, če velja `delne_vsote = matrika_delnih_vsot(matrika)`, potem velja
-# 
-#     vsota_podmatrike(delne_vsote, i1, j1, i2, j2)
-#     = sum(vrstica[j1:j2] for vrstica in matrika[i1:i2])
+#     >>> [x for x in vmesni_pregled(d)]
+#     [1, 3, 5, 6, 2, 9]
 # =============================================================================
 
-def vsota_podmatrike(delne_vsote, i1, j1, i2, j2):
-    m = len(delne_vsote)
-    n = len(delne_vsote[0])
-    vsota = delne_vsote[i2-1][j2-1]
-    vsota -= delne_vsote[i1-1][j2-1] if i1 != 0 else 0
-    vsota -= delne_vsote[i2 - 1][j1 - 1] if j1 != 0 else 0
-    vsota += delne_vsote[i1 - 1][j1 - 1] if i1 != 0 and j1 != 0 else 0
+def vmesni_pregled(drevo):
+    if not drevo.prazno:
+        yield from vmesni_pregled(drevo.levo)
+        yield drevo.podatek
+        yield from vmesni_pregled(drevo.desno)
 
-    return vsota
+# =====================================================================@029258=
+# 3. podnaloga
+# Sestavite generator `obratni_pregled(self)`, ki vrača podatke v vozliščih
+# drevesa v _obratnem vrstnem redu_ (post-order). To pomeni, da najprej
+# obiščemo levo poddrevo, nato desno poddrevo in na koncu še koren drevesa.
+# Vozlišča poddreves obiskujemo po enakem pravilu. Zgled:
+# 
+#     >>> [x for x in obratni_pregled(d)]
+#     [1, 3, 6, 9, 2, 5]
+# =============================================================================
+
+def obratni_pregled(drevo):
+    if not drevo.prazno:
+        yield from obratni_pregled(drevo.levo)
+        yield from obratni_pregled(drevo.desno)
+        yield drevo.podatek
+
+# =====================================================================@029259=
+# 4. podnaloga
+# Sestavite generator `pregled_po_nivojih(self)`, ki vrača podatke v vozliščih
+# drevesa _po nivojih_ (level-order). To pomeni, da najprej obiščemo koren,
+# nato vsa vozlišča, ki so na globini 1, nato vsa vozlišča, ki so na globini 2
+# itn. Vsa vozlišča na isti globini naštejemo od leve proti desni. Zgled:
+# 
+#     >>> [x for x in pregled_po_nivojih(d)]
+#     [5, 3, 2, 1, 6, 9]
+# =============================================================================
+
+from ogrevanje import visina
+
+def pregled_po_nivojih(drevo):
+    h = visina(drevo)
+    for i in range(1, h+1):
+        yield from dodaj_na_vrstico(drevo, i)
+
+def dodaj_na_vrstico(drevo, nivo):
+    if not drevo.prazno:
+        if nivo == 1:
+            yield drevo.podatek
+        else:
+            yield from dodaj_na_vrstico(drevo.levo, nivo -1)
+            yield from dodaj_na_vrstico(drevo.desno, nivo-1)
 
 
 
@@ -621,20 +654,93 @@ def _validate_current_file():
     Check.initialize(file_parts)
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzOH0:1mng1i:XH0JDgq0MzTVXDVXSrs9c3Rm3qM'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI1Nn0:1mqBui:9kSJ2m2puszAFpQAC1N7ARqjR-c'
         try:
-            Check.equal('matrika_delnih_vsot([[1, 2, -1], [-5, 4, 6]])', [[1, 3, 2], [-4, 2, 7]])
-            Check.equal('matrika_delnih_vsot([[1, 2, -1], [-5, 4, 6], [2, 0, 1]])', [[1, 3, 2], [-4, 2, 7], [-2, 4, 10]])
+            test_data = [
+                ('premi_pregled(Drevo(5, levo=Drevo(3, levo=Drevo(1)), desno=Drevo(2, levo=Drevo(6), desno=Drevo(9))))', [5, 3, 1, 2, 6, 9]),
+                ('premi_pregled(Drevo())', []),
+                ('premi_pregled(Drevo(3))', [3]),
+                ('premi_pregled(Drevo(5, levo=Drevo(4, desno=Drevo(2)), desno=Drevo(3)))', [5, 4, 2, 3]),
+                ('premi_pregled(Drevo(5, levo=Drevo(4, desno=Drevo(2)), desno=Drevo(3, levo=Drevo(4), desno=Drevo(4))))', [5, 4, 2, 3, 4, 4]),
+                ('premi_pregled(Drevo(-2, levo=Drevo(4, desno=Drevo(21)), desno=Drevo(23, levo=Drevo(5, levo=Drevo(13, levo=Drevo(11)), desno=Drevo(24, levo=Drevo(6), desno=Drevo(9))), desno=Drevo(73, levo=Drevo(44), desno=Drevo(54)))))',
+                 [-2, 4, 21, 23, 5, 13, 11, 24, 6, 9, 73, 44, 54]),
+            ]
+            for td in test_data:
+                if not Check.generator(*td, should_stop=True):
+                    break
+            _drevesa = [Drevo(), Drevo()]
+            for i in range(1, 12):
+                _drevesa.append(Drevo(i, levo=_drevesa[-1], desno=_drevesa[-2]))
+                Check.secret(list(premi_pregled(_drevesa[-1])))
         except:
             Check.error("Testi sprožijo izjemo\n  {0}",
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzOX0:1mng1i:KDXGfNrGzel4KTRd_RlqiAMcYgo'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI1N30:1mqBui:G8t26T8FSM7dAOnOOibK0O1DRyY'
         try:
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 0, 1, 3, 3)', 12)
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 1, 1, 2, 2)', 4)
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 0, 0, 1, 1)', 1)
+            test_data = [
+                ('vmesni_pregled(Drevo(5, levo=Drevo(3, levo=Drevo(1)), desno=Drevo(2, levo=Drevo(6), desno=Drevo(9))))', [1, 3, 5, 6, 2, 9]),
+                ('vmesni_pregled(Drevo())', []),
+                ('vmesni_pregled(Drevo(3))', [3]),
+                ('vmesni_pregled(Drevo(5, levo=Drevo(4, desno=Drevo(2)), desno=Drevo(3)))', [4, 2, 5, 3]),
+                ('vmesni_pregled(Drevo(5, levo=Drevo(4, desno=Drevo(2)), desno=Drevo(3, levo=Drevo(4), desno=Drevo(4))))', [4, 2, 5, 4, 3, 4]),
+                ('vmesni_pregled(Drevo(-2, levo=Drevo(4, desno=Drevo(21)), desno=Drevo(23, levo=Drevo(5, levo=Drevo(13, levo=Drevo(11)), desno=Drevo(24, levo=Drevo(6), desno=Drevo(9))), desno=Drevo(73, levo=Drevo(44), desno=Drevo(54)))))',
+                 [4, 21, -2, 11, 13, 5, 6, 24, 9, 23, 44, 73, 54]),
+            ]
+            for td in test_data:
+                if not Check.generator(*td, should_stop=True):
+                    break
+            _drevesa = [Drevo(), Drevo()]
+            for i in range(1, 12):
+                _drevesa.append(Drevo(i, levo=_drevesa[-1], desno=_drevesa[-2]))
+                Check.secret(list(vmesni_pregled(_drevesa[-1])))
+        except:
+            Check.error("Testi sprožijo izjemo\n  {0}",
+                        "\n  ".join(traceback.format_exc().split("\n"))[:-2])
+
+    if Check.part():
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI1OH0:1mqBui:xSRbA_Sg89o11VRwY-rg-ZWg0js'
+        try:
+            test_data = [
+                ('obratni_pregled(Drevo(5, levo=Drevo(3, levo=Drevo(1)), desno=Drevo(2, levo=Drevo(6), desno=Drevo(9))))', [1, 3, 6, 9, 2, 5]),
+                ('obratni_pregled(Drevo())', []),
+                ('obratni_pregled(Drevo(3))', [3]),
+                ('obratni_pregled(Drevo(5, levo=Drevo(4, desno=Drevo(2)), desno=Drevo(3)))', [2, 4, 3, 5]),
+                ('obratni_pregled(Drevo(5, levo=Drevo(4, desno=Drevo(2)), desno=Drevo(3, levo=Drevo(4), desno=Drevo(4))))', [2, 4, 4, 4, 3, 5]),
+                ('obratni_pregled(Drevo(-2, levo=Drevo(4, desno=Drevo(21)), desno=Drevo(23, levo=Drevo(5, levo=Drevo(13, levo=Drevo(11)), desno=Drevo(24, levo=Drevo(6), desno=Drevo(9))), desno=Drevo(73, levo=Drevo(44), desno=Drevo(54)))))',
+                 [21, 4, 11, 13, 6, 9, 24, 5, 44, 54, 73, 23, -2] ),
+            ]
+            for td in test_data:
+                if not Check.generator(*td, should_stop=True):
+                    break
+            _drevesa = [Drevo(), Drevo()]
+            for i in range(1, 12):
+                _drevesa.append(Drevo(i, levo=_drevesa[-1], desno=_drevesa[-2]))
+                Check.secret(list(obratni_pregled(_drevesa[-1])))
+        except:
+            Check.error("Testi sprožijo izjemo\n  {0}",
+                        "\n  ".join(traceback.format_exc().split("\n"))[:-2])
+
+    if Check.part():
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI1OX0:1mqBui:FeXQT4DuMd2bvCbxYRdyLJdGp4o'
+        try:
+            test_data = [
+                ('pregled_po_nivojih(Drevo(5, levo=Drevo(3, levo=Drevo(1)), desno=Drevo(2, levo=Drevo(6), desno=Drevo(9))))', [5, 3, 2, 1, 6, 9]),
+                ('pregled_po_nivojih(Drevo())', []),
+                ('pregled_po_nivojih(Drevo(3))', [3]),
+                ('pregled_po_nivojih(Drevo(5, levo=Drevo(4, desno=Drevo(2)), desno=Drevo(3)))', [5, 4, 3, 2]),
+                ('pregled_po_nivojih(Drevo(5, levo=Drevo(4, desno=Drevo(2)), desno=Drevo(3, levo=Drevo(4), desno=Drevo(4))))', [5, 4, 3, 2, 4, 4]),
+                ('pregled_po_nivojih(Drevo(-2, levo=Drevo(4, desno=Drevo(21)), desno=Drevo(23, levo=Drevo(5, levo=Drevo(13, levo=Drevo(11)), desno=Drevo(24, levo=Drevo(6), desno=Drevo(9))), desno=Drevo(73, levo=Drevo(44), desno=Drevo(54)))))',
+                 [-2, 4, 23, 21, 5, 73, 13, 24, 44, 54, 11, 6, 9]),
+            ]
+            for td in test_data:
+                if not Check.generator(*td, should_stop=True):
+                    break
+            _drevesa = [Drevo(), Drevo()]
+            for i in range(1, 12):
+                _drevesa.append(Drevo(i, levo=_drevesa[-1], desno=_drevesa[-2]))
+                Check.secret(list(pregled_po_nivojih(_drevesa[-1])))
         except:
             Check.error("Testi sprožijo izjemo\n  {0}",
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])

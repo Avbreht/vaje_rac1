@@ -1,63 +1,115 @@
 # =============================================================================
-# Največja podvsota matrike
-# =====================================================================@029238=
+# Spreminjanje dreves
+#
+# [Dan je](http://www.fmf.uni-lj.si/~basic/rac1/drevo.py) razred `Drevo`, ki
+# predstavlja dvojiško drevo.
+# =====================================================================@029267=
 # 1. podnaloga
-# Sestavite funkcijo `matrika_delnih_vsot(matrika)`, ki vrne matriko delnih
-# vsot, v kateri je na vsakem mestu vsota vseh elementov v bloku levo zgoraj od
-# danega mesta. Na primer, če je `matrika` enaka
+# Dodajte metodo `odrezi(self, n)`, ki odstrani vsa vozlišča, ki ležijo na
+# globini (oz. nivojih) večji od `n`. Zgled:
 # 
-#      1  2 -1
-#     -5  4  6
-#      2  0  1
-# 
-# mora funkcija vrniti matriko
-# 
-#      1  3  2
-#     -4  2  7
-#     -2  4  10
-# 
-# Če želite uspešno rešiti zadnji del naloge, mora funkcija delovati v
-# linearnem času (v odvisnosti od velikosti matrike).
+#     >>> d = Drevo(5,
+#                   levo=Drevo(3, levo=Drevo(1)),
+#                   desno=Drevo(2, levo=Drevo(6), desno=Drevo(9)))
+#     >>> d.odrezi(2)
+#     >>> d
+#     Drevo(5,
+#           levo = Drevo(3),
+#           desno = Drevo(2))
 # =============================================================================
 
-def matrika_delnih_vsot(matrika):
-    m = len(matrika)
-    n = len(matrika[0])
-    delneVsote = matrika
-    for i in range(m):
-        for j in range(n):
-            dVsota = matrika[i][j]
-            dVsota += delneVsote[i - 1][j] if i != 0 else 0
-            dVsota += delneVsote[i][j - 1] if j != 0 else 0
-            dVsota -= delneVsote[i - 1][j - 1] if i != 0 and j != 0 else 0
+class Drevo:
 
-            delneVsote[i][j] = dVsota
-    return delneVsote
+    def __init__(self, *args, **kwargs):
+        if args:
+            self.prazno = False
+            self.vsebina = args[0]
+            self.levo = kwargs.get('levo', Drevo())
+            self.desno = kwargs.get('desno', Drevo())
+        else:
+            self.prazno = True
 
+    def __repr__(self, zamik = ''):
+        if self.prazno:
+          return 'Drevo()'.format(zamik)
+        elif self.levo.prazno and self.desno.prazno:
+          return 'Drevo({1})'.format(zamik, self.vsebina)
+        else:
+          return 'Drevo({1},\n{0}      levo = {2},\n{0}      desno = {3})'.\
+            format(
+              zamik,
+              self.vsebina,
+              self.levo.__repr__(zamik + '             '),
+              self.desno.__repr__(zamik + '              ')
+            )
 
+    def __eq__(self, other):
+        return ((self.prazno and other.prazno) or
+                (not self.prazno and not other.prazno and
+                 self.vsebina == other.vsebina and
+                 self.levo == other.levo and
+                 self.desno == other.desno))
 
-# =====================================================================@029239=
+    def odrezi(self, n):
+        if not self.prazno:
+            if n == 0:
+                self.prazno = True
+            else:
+                self.levo.odrezi(n-1)
+                self.desno.odrezi(n-1)
+
+# =====================================================================@029268=
 # 2. podnaloga
-# Sestavite funkcijo `vsota_podmatrike(delne_vsote, i1, j1, i2, j2)`, ki iz
-# matrike delnih vsot, kot jo izračuna prejšnja funkcija, v konstantnem času
-# izračuna vsoto vseh elementov med vrsticami `i1` (vključno) in `i2` (brez) ter
-# stolpci `j1` (vključno) in `j2` (brez).
+# Sestavite metodo `potroji(self)`, ki pod vsakim vozliščem doda še dve njegovi
+# kopiji. Levo poddrevo prestavi levo od leve kopije, desno poddrevo pa desno
+# od desne kopije. Zgled:
 # 
-# Natančneje, če velja `delne_vsote = matrika_delnih_vsot(matrika)`, potem velja
-# 
-#     vsota_podmatrike(delne_vsote, i1, j1, i2, j2)
-#     = sum(vrstica[j1:j2] for vrstica in matrika[i1:i2])
+#     >>> d = Drevo(5, levo=Drevo(3), desno=Drevo(2))
+#     >>> d.potroji()
+#     >>> d
+#     Drevo(5,
+#           levo = Drevo(5,
+#                        levo = Drevo(3,
+#                                     levo = Drevo(3),
+#                                     desno = Drevo(3)),
+#                        desno = Drevo()),
+#           desno = Drevo(5,
+#                         levo = Drevo(),
+#                         desno = Drevo(2,
+#                                       levo = Drevo(2),
+#                                       desno = Drevo(2))))
 # =============================================================================
 
-def vsota_podmatrike(delne_vsote, i1, j1, i2, j2):
-    m = len(delne_vsote)
-    n = len(delne_vsote[0])
-    vsota = delne_vsote[i2-1][j2-1]
-    vsota -= delne_vsote[i1-1][j2-1] if i1 != 0 else 0
-    vsota -= delne_vsote[i2 - 1][j1 - 1] if j1 != 0 else 0
-    vsota += delne_vsote[i1 - 1][j1 - 1] if i1 != 0 and j1 != 0 else 0
+class Drevo(Drevo):
 
-    return vsota
+    def potroji(self):
+        if not self.prazno:
+            self.levo.potroji()
+            self.desno.potroji()
+            self.vsebina = Drevo(self.vsebina, levo=Drevo(self.vsebina), desno=Drevo(self.vsebina))
+
+# =====================================================================@029269=
+# 3. podnaloga
+# Sestavite metodo `prezrcali(self)`, ki drevo prezrcali. Zgled:
+# 
+#     >>> d = Drevo(5, levo=Drevo(3), desno=Drevo(2, levo=Drevo(1)))
+#     >>> d.prezrcali()
+#     >>> d
+#     Drevo(5,
+#           levo = Drevo(2,
+#                        desno = Drevo(1)),
+#           desno = Drevo(3)
+# =============================================================================
+
+class Drevo(Drevo):
+
+    def prezrcali(self):
+        if self.prazno:
+            return Drevo()
+        else:
+            levo = self.levo.prezrcali()
+            desno = self.desno.prezrcali()
+            return Drevo(self.vsebina, levo=desno, desno=levo)
 
 
 
@@ -621,20 +673,78 @@ def _validate_current_file():
     Check.initialize(file_parts)
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzOH0:1mng1i:XH0JDgq0MzTVXDVXSrs9c3Rm3qM'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI2N30:1mskdu:VY95qzxhbkFLETOYCp8tfswFJ8A'
         try:
-            Check.equal('matrika_delnih_vsot([[1, 2, -1], [-5, 4, 6]])', [[1, 3, 2], [-4, 2, 7]])
-            Check.equal('matrika_delnih_vsot([[1, 2, -1], [-5, 4, 6], [2, 0, 1]])', [[1, 3, 2], [-4, 2, 7], [-2, 4, 10]])
+            test_data = [
+                (["d = Drevo(5, levo=Drevo(3, levo=Drevo(1)), desno=Drevo(2, levo=Drevo(6), desno=Drevo(9)))",
+                  "d.odrezi(2)"], {'d': Drevo(5, levo = Drevo(3), desno = Drevo(2))}),
+                (["d = Drevo(5, levo=Drevo(3, levo=Drevo(1)), desno=Drevo(2, levo=Drevo(6), desno=Drevo(9)))",
+                  "d.odrezi(10)"], {'d': Drevo(5, levo=Drevo(3, levo=Drevo(1)), desno=Drevo(2, levo=Drevo(6), desno=Drevo(9)))}),
+                (["d = Drevo(5, levo=Drevo(3, levo=Drevo(1)), desno=Drevo(2, levo=Drevo(6), desno=Drevo(9)))",
+                  "d.odrezi(3)"], {'d': Drevo(5, levo=Drevo(3, levo=Drevo(1)), desno=Drevo(2, levo=Drevo(6), desno=Drevo(9)))}),
+                (["d = Drevo(5, levo=Drevo(3, levo=Drevo(1)), desno=Drevo(2, levo=Drevo(6), desno=Drevo(9)))",
+                  "d.odrezi(1)"], {'d': Drevo(5)}),
+                (["d = Drevo(5, levo=Drevo(3, levo=Drevo(1)), desno=Drevo(2, levo=Drevo(6), desno=Drevo(9)))",
+                  "d.odrezi(0)"], {'d': Drevo()}),
+                (["d = Drevo(5, levo=Drevo(4, desno=Drevo(2)), desno=Drevo(3, levo=Drevo(4), desno=Drevo(4)))",
+                  "d.odrezi(1)"], {'d': Drevo(5)}),
+                (["d = Drevo(5, levo=Drevo(4, desno=Drevo(2)), desno=Drevo(3, levo=Drevo(4), desno=Drevo(4)))",
+                  "d.odrezi(2)"], {'d': Drevo(5, levo=Drevo(4), desno=Drevo(3))}),
+                (["d = Drevo(5, levo=Drevo(4, desno=Drevo(2)), desno=Drevo(3, levo=Drevo(4), desno=Drevo(4)))",
+                  "d.odrezi(3)"],
+                {'d': Drevo(5, levo=Drevo(4, desno=Drevo(2)), desno=Drevo(3, levo=Drevo(4), desno=Drevo(4)))}),
+            ]
+            for td in test_data:
+                if not Check.run(*td):
+                    break
+            _drevesa = [Drevo(), Drevo()]
+            for i in range(1, 10):
+                _drevesa.append(Drevo(i, levo=_drevesa[-1], desno=_drevesa[-1]))
+            for i in range(10, 1, -1):
+                _drevesa[9].odrezi(i)
+                Check.secret(_drevesa[9])
         except:
             Check.error("Testi sprožijo izjemo\n  {0}",
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzOX0:1mng1i:KDXGfNrGzel4KTRd_RlqiAMcYgo'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI2OH0:1mskdu:zchdpnigZcASsdhC1PqIpKP9wP8'
         try:
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 0, 1, 3, 3)', 12)
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 1, 1, 2, 2)', 4)
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 0, 0, 1, 1)', 1)
+            test_data = [
+                (["d = Drevo(5, levo=Drevo(3), desno=Drevo(2))",
+                  "d.potroji()"], {'d': Drevo(5, levo = Drevo(5, levo = Drevo(3, levo = Drevo(3), desno = Drevo(3)), desno = Drevo()), desno = Drevo(5, levo = Drevo(), desno = Drevo(2, levo = Drevo(2), desno = Drevo(2))))}),
+                (["d = Drevo(3)",
+                  "d.potroji()"], {'d': Drevo(3, levo=Drevo(3), desno=Drevo(3))}),
+                (["d = Drevo(1, levo=Drevo(2), desno=Drevo(3))",
+                  "d.potroji()"], {'d': Drevo(1, levo=Drevo(1, levo=Drevo(2, levo=Drevo(2), desno=Drevo(2))), desno=Drevo(1, desno=Drevo(3, levo=Drevo(3), desno=Drevo(3))))})
+            ]
+            for td in test_data:
+                if not Check.run(*td):
+                    break
+            _drevo = Drevo(1, levo=Drevo(2), desno=Drevo(3))
+            for i in range(1, 4):
+                _drevo.potroji()
+                Check.secret(_drevo)
+        except:
+            Check.error("Testi sprožijo izjemo\n  {0}",
+                        "\n  ".join(traceback.format_exc().split("\n"))[:-2])
+
+    if Check.part():
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI2OX0:1mskdu:wPOKLhqtIWu09tW6X7Z0Vq-nnoo'
+        try:
+            test_data = [
+                (["d = Drevo(5, levo=Drevo(3), desno=Drevo(2))",
+                  "d.prezrcali()"], {'d': Drevo(5, levo=Drevo(2), desno=Drevo(3))}),
+                (["d = Drevo(3)",
+                  "d.prezrcali()"], {'d': Drevo(3)}),
+                (["d = Drevo()",
+                  "d.prezrcali()"], {'d': Drevo()}),
+                (["d = Drevo(5, levo=Drevo(3), desno=Drevo(2, levo=Drevo(1)))",
+                  "d.prezrcali()"], {'d': Drevo(5, levo=Drevo(2, desno=Drevo(1)), desno=Drevo(3))})
+            ]
+            for td in test_data:
+                if not Check.run(*td):
+                    break
         except:
             Check.error("Testi sprožijo izjemo\n  {0}",
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])

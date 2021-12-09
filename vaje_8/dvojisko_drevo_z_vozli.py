@@ -1,63 +1,116 @@
 # =============================================================================
-# Največja podvsota matrike
-# =====================================================================@029238=
+# Dvojiško drevo z vozli
+#
+# Podatkovno strukturo dvojiškega drevesa smo v Pythonu predstavili z razredom
+# `Drevo`, ki ponuja:
+# 
+# * Inicializator `Drevo()`, ki ustvari prazno drevo.
+# * Inicializator `Drevo(podatek, levo, desno)`, ki ustvari neprazno drevo z
+#   danim podatkom ter levim in desnim otrokom, ki sta prav tako razreda `Drevo`.
+#   Argumenta `levo` in `desno` sta neobvezna. Če ju ne podamo, namesto njiju
+#   vstavimo prazno drevo.
+# * Atribut `prazno`, ki vrne `True`, če je drevo prazno, in `False`, če ni.
+# * Atribut `podatek`, ki vrne podatek v korenu drevesa.
+# * Atributa `levo` in `desno`, ki vrneta levega oziroma desnega otroka, prav
+#   prav tako razreda `Drevo`.
+# 
+# Ena izmed možnih implementacij takega razreda je na voljo na 
+#   <https://gist.githubusercontent.com/matijapretnar/65d4d5f3eec609f4276155cb1cee892d/raw/dvojisko_drevo.py>.
+# 
+# Pri tej nalogi boste napisali malo bolj sistematično implementacijo, ki
+# samodejno izključi nekatere nekonsistentne predstavitve podatkov, na primer
+# to, da bi imelo drevo atribut `prazno` nastavljen na `True`, hkrati pa bi
+# vsebovalo podatke.
+# 
+# Drevo bomo predstavili z objektom, ki ima zgolj en atribut po imenu `_koren`,
+# ki vsebuje bodisi `None` za prazno drevo bodisi trojico
+# `(podatek, levo, desno)`, pri čemer sta `levo` in `desno` zopet drevesi.
+# Sestavite razred `Drevo`, ki podpira zgoraj naštete možnosti.
+# Ker `prazno`, `podatek`, `levo` in `desno` niso več atributi, morate uporabiti
+# dekorator `@property`, ki omogoča, da jih implementirate z metodami,
+# uporabnikom vašega razreda pa so še vedno na voljo kot atributi.
+# =====================================================================@029254=
 # 1. podnaloga
-# Sestavite funkcijo `matrika_delnih_vsot(matrika)`, ki vrne matriko delnih
-# vsot, v kateri je na vsakem mestu vsota vseh elementov v bloku levo zgoraj od
-# danega mesta. Na primer, če je `matrika` enaka
-# 
-#      1  2 -1
-#     -5  4  6
-#      2  0  1
-# 
-# mora funkcija vrniti matriko
-# 
-#      1  3  2
-#     -4  2  7
-#     -2  4  10
-# 
-# Če želite uspešno rešiti zadnji del naloge, mora funkcija delovati v
-# linearnem času (v odvisnosti od velikosti matrike).
+# Sestavite razred `Drevo`, kot je opisano v navodilih.
 # =============================================================================
 
-def matrika_delnih_vsot(matrika):
-    m = len(matrika)
-    n = len(matrika[0])
-    delneVsote = matrika
-    for i in range(m):
-        for j in range(n):
-            dVsota = matrika[i][j]
-            dVsota += delneVsote[i - 1][j] if i != 0 else 0
-            dVsota += delneVsote[i][j - 1] if j != 0 else 0
-            dVsota -= delneVsote[i - 1][j - 1] if i != 0 and j != 0 else 0
+class Drevo:
 
-            delneVsote[i][j] = dVsota
-    return delneVsote
+    def __init__(self, *args, **kwargs):
+        '''Ustvari dvojiško drevo.
+
+        - Drevo() ustvari prazno dvojiško drevo
+        - Drevo(podatek, levo=..., desno=...) ustvari dvojiško drevo z
+          danim podatkom v korenu ter levim in desnim sinom. Če kakšen od sinov
+          manjka, se privzame, da je prazen.
+        '''
+        if args:
+            assert len(args) == 1
+            podatek = args[0]
+            # če levega ali desnega sina ne podamo, ustvarimo prazno drevo
+            levo = kwargs.pop('levo', None) or Drevo()
+            desno = kwargs.pop('desno', None) or Drevo()
+            self._koren = (podatek, levo, desno)
+        else:
+            self._koren = None
+        # poleg že obdelanih konstruktor ne sme sprejeti drugih argumentov
+        assert not kwargs
+
+    def __repr__(self, zamik=''):
+        if self.prazno:
+            return 'Drevo()'.format(zamik)
+        elif self.levo.prazno and self.desno.prazno:
+            return 'Drevo({1})'.format(zamik, self.podatek)
+        else:
+            return 'Drevo({1},\n{0}      levo = {2},\n{0}      desno = {3})'. \
+                format(
+                zamik,
+                self.podatek,
+                self.levo.__repr__(zamik + '             '),
+                self.desno.__repr__(zamik + '              ')
+            )
+
+    def __hash__(self):
+        return hash(self._koren)
+
+    def __eq__(self, other):
+        return self._koren == other._koren
+
+    @property
+    def prazno(self):
+        return self._koren is None
+
+    @property
+    def podatek(self):
+        return self._koren.podatek
+
+    @property
+    def levo(self):
+        return self._koren.levo
+
+    @property
+    def desno(self):
+        return self._koren.desno
 
 
-
-# =====================================================================@029239=
+# =====================================================================@029255=
 # 2. podnaloga
-# Sestavite funkcijo `vsota_podmatrike(delne_vsote, i1, j1, i2, j2)`, ki iz
-# matrike delnih vsot, kot jo izračuna prejšnja funkcija, v konstantnem času
-# izračuna vsoto vseh elementov med vrsticami `i1` (vključno) in `i2` (brez) ter
-# stolpci `j1` (vključno) in `j2` (brez).
+# Če ste strukturo pravilno implementirali, lahko sedaj v vseh nalogah že podano
+# implementacijo nadomestite s svojo tako, da namesto
 # 
-# Natančneje, če velja `delne_vsote = matrika_delnih_vsot(matrika)`, potem velja
+#     from dvojisko_drevo import Drevo
 # 
-#     vsota_podmatrike(delne_vsote, i1, j1, i2, j2)
-#     = sum(vrstica[j1:j2] for vrstica in matrika[i1:i2])
+# pišete
+# 
+#     from dvojisko_drevo_z_vozli import Drevo
+# 
+# Poskusite in kot rešitev naloge napišite, če ste imeli kje kakšne težave.
 # =============================================================================
-
-def vsota_podmatrike(delne_vsote, i1, j1, i2, j2):
-    m = len(delne_vsote)
-    n = len(delne_vsote[0])
-    vsota = delne_vsote[i2-1][j2-1]
-    vsota -= delne_vsote[i1-1][j2-1] if i1 != 0 else 0
-    vsota -= delne_vsote[i2 - 1][j1 - 1] if j1 != 0 else 0
-    vsota += delne_vsote[i1 - 1][j1 - 1] if i1 != 0 and j1 != 0 else 0
-
-    return vsota
+ali_je_vse_delalo = False
+kaj_je_delalo_in_kaj_ni = '''
+    ni mi delovala implementacija, saj mi je javljalo da tuple object nima atributa levo/desno/podatek
+    torej verjetno kje definiram podrevesa kot tuple object in ne kot novo drevo
+'''
 
 
 
@@ -621,20 +674,20 @@ def _validate_current_file():
     Check.initialize(file_parts)
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzOH0:1mng1i:XH0JDgq0MzTVXDVXSrs9c3Rm3qM'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI1NH0:1mqBue:UnLJFoCGrnVQnmbPX-rZFaH-qfM'
         try:
-            Check.equal('matrika_delnih_vsot([[1, 2, -1], [-5, 4, 6]])', [[1, 3, 2], [-4, 2, 7]])
-            Check.equal('matrika_delnih_vsot([[1, 2, -1], [-5, 4, 6], [2, 0, 1]])', [[1, 3, 2], [-4, 2, 7], [-2, 4, 10]])
+            Check.feedback('Testov ni: pravilnost preverite z naslednjo nalogo.')
         except:
             Check.error("Testi sprožijo izjemo\n  {0}",
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzOX0:1mng1i:KDXGfNrGzel4KTRd_RlqiAMcYgo'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI1NX0:1mqBue:NqDWC6yCqGt2ZJ7vsZLBgcDmMLo'
         try:
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 0, 1, 3, 3)', 12)
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 1, 1, 2, 2)', 4)
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 0, 0, 1, 1)', 1)
+            if ali_je_vse_delalo is None:
+                Check.error('Za vrednost spremenljivke ali_je_vse_delalo napišite True ali False.')
+            if kaj_je_delalo_in_kaj_ni.strip() == '...':
+                Check.error('Z lastnimi besedami opišite, kaj je delalo in kaj ni.')
         except:
             Check.error("Testi sprožijo izjemo\n  {0}",
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])

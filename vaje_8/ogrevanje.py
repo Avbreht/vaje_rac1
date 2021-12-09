@@ -1,66 +1,64 @@
 # =============================================================================
-# Največja podvsota matrike
-# =====================================================================@029238=
+# Ogrevanje
+#
+# Poglejte implementacijo drevesa, ki jo uporabljate, in rešite naslednje
+# naloge.
+# 
+# Ker so naloge preproste, Tomo ne vsebuje rešitev ali testov. Preverjanje ali
+# je rešitev pravilna je torej vaša zadolžitev.
+# =====================================================================@029243=
 # 1. podnaloga
-# Sestavite funkcijo `matrika_delnih_vsot(matrika)`, ki vrne matriko delnih
-# vsot, v kateri je na vsakem mestu vsota vseh elementov v bloku levo zgoraj od
-# danega mesta. Na primer, če je `matrika` enaka
-# 
-#      1  2 -1
-#     -5  4  6
-#      2  0  1
-# 
-# mora funkcija vrniti matriko
-# 
-#      1  3  2
-#     -4  2  7
-#     -2  4  10
-# 
-# Če želite uspešno rešiti zadnji del naloge, mora funkcija delovati v
-# linearnem času (v odvisnosti od velikosti matrike).
+# Napišite funkcijo `vrni_koren(drevo)`, ki vrne podatek v korenu drevesa, če pa je
+# drevo prazno pa vrne `None`.
 # =============================================================================
 
-def matrika_delnih_vsot(matrika):
-    m = len(matrika)
-    n = len(matrika[0])
-    delneVsote = matrika
-    for i in range(m):
-        for j in range(n):
-            dVsota = matrika[i][j]
-            dVsota += delneVsote[i - 1][j] if i != 0 else 0
-            dVsota += delneVsote[i][j - 1] if j != 0 else 0
-            dVsota -= delneVsote[i - 1][j - 1] if i != 0 and j != 0 else 0
+from dvojisko_drevo_z_vozli import Drevo
 
-            delneVsote[i][j] = dVsota
-    return delneVsote
+def vrni_koren(drevo):
+    if drevo.prazno:
+        return None
+    else:
+        return drevo.podatek
 
-
-
-# =====================================================================@029239=
+# =====================================================================@029244=
 # 2. podnaloga
-# Sestavite funkcijo `vsota_podmatrike(delne_vsote, i1, j1, i2, j2)`, ki iz
-# matrike delnih vsot, kot jo izračuna prejšnja funkcija, v konstantnem času
-# izračuna vsoto vseh elementov med vrsticami `i1` (vključno) in `i2` (brez) ter
-# stolpci `j1` (vključno) in `j2` (brez).
-# 
-# Natančneje, če velja `delne_vsote = matrika_delnih_vsot(matrika)`, potem velja
-# 
-#     vsota_podmatrike(delne_vsote, i1, j1, i2, j2)
-#     = sum(vrstica[j1:j2] for vrstica in matrika[i1:i2])
+# Napišite funkcijo `je_list(drevo)`, ki preveri ali je podano drevo list.
 # =============================================================================
 
-def vsota_podmatrike(delne_vsote, i1, j1, i2, j2):
-    m = len(delne_vsote)
-    n = len(delne_vsote[0])
-    vsota = delne_vsote[i2-1][j2-1]
-    vsota -= delne_vsote[i1-1][j2-1] if i1 != 0 else 0
-    vsota -= delne_vsote[i2 - 1][j1 - 1] if j1 != 0 else 0
-    vsota += delne_vsote[i1 - 1][j1 - 1] if i1 != 0 and j1 != 0 else 0
+def je_list(drevo):
+    if drevo.prazno:
+        return False
+    elif drevo.desno.prazno and drevo.levo.prazno:
+        return True
+    return False
 
-    return vsota
+# =====================================================================@029245=
+# 3. podnaloga
+# Napišite funkcijo `nikoli_levo(drevo)`, ki preveri, da ima vsako vozlišče drevesa
+# kvečjemu desno poddrevo.
+# =============================================================================
 
 
+def nikoli_levo(drevo):
+    if drevo.prazno:
+        return True
+    else:
+        if drevo.levo is not None:
+            return False
+        else:
+            return nikoli_levo(drevo.desno)
 
+# =====================================================================@029246=
+# 4. podnaloga
+# Napišite funkcijo `višina(drevo)`, ki izračuna višino dvojiškega drevesa.
+# =============================================================================
+
+
+def visina(drevo):
+    if drevo.prazno:
+        return 0
+    else:
+        return 1 + max(visina(drevo.levo), visina(drevo.desno))
 
 
 
@@ -621,20 +619,33 @@ def _validate_current_file():
     Check.initialize(file_parts)
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzOH0:1mng1i:XH0JDgq0MzTVXDVXSrs9c3Rm3qM'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI0M30:1mqBuX:On1vH8_6lezXnKsUPBBCsCzeuPI'
         try:
-            Check.equal('matrika_delnih_vsot([[1, 2, -1], [-5, 4, 6]])', [[1, 3, 2], [-4, 2, 7]])
-            Check.equal('matrika_delnih_vsot([[1, 2, -1], [-5, 4, 6], [2, 0, 1]])', [[1, 3, 2], [-4, 2, 7], [-2, 4, 10]])
+            pass
         except:
             Check.error("Testi sprožijo izjemo\n  {0}",
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzOX0:1mng1i:KDXGfNrGzel4KTRd_RlqiAMcYgo'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI0NH0:1mqBuX:vDzav7q_RkANQtstlXIDljAguow'
         try:
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 0, 1, 3, 3)', 12)
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 1, 1, 2, 2)', 4)
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 0, 0, 1, 1)', 1)
+            pass
+        except:
+            Check.error("Testi sprožijo izjemo\n  {0}",
+                        "\n  ".join(traceback.format_exc().split("\n"))[:-2])
+
+    if Check.part():
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI0NX0:1mqBuX:YYVG4ZtIVbnxACQQIseutKAngWA'
+        try:
+            pass
+        except:
+            Check.error("Testi sprožijo izjemo\n  {0}",
+                        "\n  ".join(traceback.format_exc().split("\n"))[:-2])
+
+    if Check.part():
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI0Nn0:1mqBuX:tVl5WLkM3CWxqbPrnmnS3enKia0'
+        try:
+            pass
         except:
             Check.error("Testi sprožijo izjemo\n  {0}",
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])

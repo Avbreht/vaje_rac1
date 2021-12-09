@@ -1,63 +1,65 @@
 # =============================================================================
-# Največja podvsota matrike
-# =====================================================================@029238=
+# Aritmetični izraz
+#
+# Aritmetične izraze, kot je na primer $(9 * (2 - 7)) + (5 * 3)$, lahko
+# zapišemo v obliki dvojiškega drevesa (glejte spodaj). V vsakem vozlišču je
+# zapisano bodisi neko celo število bodisi nek aritmetični operator. (Da ne bi
+# imeli problemov z deljenjem s številom $0$, se bomo omejili na operatorje
+# $+$, $-$ in $*$.) Če vozlišče predstavlja operator, potem ima nujno levega in
+# desnega sina, ki predstavljata ustrezna podizraza. Če vozlišče predstavlja
+# število, je nujno list drevesa. (Ste opazili, da je v korenu drevesa na
+# spodnji sliki operator $+$, ki ga v tem izrazu izračunamo kot zadnjega?)
+# 
+#     zgled = Izraz('+',
+#                   levo=Izraz('*',
+#                              levo=Izraz(9),
+#                              desno=Izraz('-',
+#                                          levo=Izraz(2),
+#                                          desno=Izraz(7))),
+#                   desno=Izraz('*',
+#                               levo=Izraz(5),
+#                               desno=Izraz(3)))
+# 
+# Podatkovna struktura `Izraz` je že
+# [implementirana](http://www.fmf.uni-lj.si/~basic/rac1/aritmeticni_izraz.py).
+# Vsako vozlišče ima atribut `operator`, ki je lahko `'+'`, `'-'`, `'*'` ali
+# `None`. Če je njegova vrednost `None`, predstavlja število in vozlišče ima še
+# atribut `stevilo` (celo število). Če vrednost atributa `operator` ni `None`,
+# ima vozlišče še atributa `levo` in `desno`, ki predstavljata levi in desni
+# podizraz.
+# =====================================================================@029273=
 # 1. podnaloga
-# Sestavite funkcijo `matrika_delnih_vsot(matrika)`, ki vrne matriko delnih
-# vsot, v kateri je na vsakem mestu vsota vseh elementov v bloku levo zgoraj od
-# danega mesta. Na primer, če je `matrika` enaka
+# Sestavite metodo `vrednost(self)`, ki izračuna in vrne vrednost tega
+# aritmetičnega izraza. Primer (če `d` ustreza zgornji sliki):
 # 
-#      1  2 -1
-#     -5  4  6
-#      2  0  1
-# 
-# mora funkcija vrniti matriko
-# 
-#      1  3  2
-#     -4  2  7
-#     -2  4  10
-# 
-# Če želite uspešno rešiti zadnji del naloge, mora funkcija delovati v
-# linearnem času (v odvisnosti od velikosti matrike).
+#     >>> d.vrednost()
+#     -30
 # =============================================================================
 
-def matrika_delnih_vsot(matrika):
-    m = len(matrika)
-    n = len(matrika[0])
-    delneVsote = matrika
-    for i in range(m):
-        for j in range(n):
-            dVsota = matrika[i][j]
-            dVsota += delneVsote[i - 1][j] if i != 0 else 0
-            dVsota += delneVsote[i][j - 1] if j != 0 else 0
-            dVsota -= delneVsote[i - 1][j - 1] if i != 0 and j != 0 else 0
-
-            delneVsote[i][j] = dVsota
-    return delneVsote
-
-
-
-# =====================================================================@029239=
+# =====================================================================@029274=
 # 2. podnaloga
-# Sestavite funkcijo `vsota_podmatrike(delne_vsote, i1, j1, i2, j2)`, ki iz
-# matrike delnih vsot, kot jo izračuna prejšnja funkcija, v konstantnem času
-# izračuna vsoto vseh elementov med vrsticami `i1` (vključno) in `i2` (brez) ter
-# stolpci `j1` (vključno) in `j2` (brez).
+# Napišite metodo `obicajni_zapis(self)`, ki vrne niz z običajnim zapisom tega
+# izraza (glejte primer spodaj). Pred in za vsakim operatorjem naj bo po en
+# presledek. Podizrazi naj bodo v oklepajih, razen kadar so le-ti števila.
+# Sicer oklepajev ne smete opuščati (pa čeprav nam asociativnostni zakon to
+# omogoča). Primer (če `d` ustreza zgornji sliki):
 # 
-# Natančneje, če velja `delne_vsote = matrika_delnih_vsot(matrika)`, potem velja
-# 
-#     vsota_podmatrike(delne_vsote, i1, j1, i2, j2)
-#     = sum(vrstica[j1:j2] for vrstica in matrika[i1:i2])
+#     >>> d.obicajni_zapis()
+#     '(9 * (2 - 7)) + (5 * 3)'
 # =============================================================================
 
-def vsota_podmatrike(delne_vsote, i1, j1, i2, j2):
-    m = len(delne_vsote)
-    n = len(delne_vsote[0])
-    vsota = delne_vsote[i2-1][j2-1]
-    vsota -= delne_vsote[i1-1][j2-1] if i1 != 0 else 0
-    vsota -= delne_vsote[i2 - 1][j1 - 1] if j1 != 0 else 0
-    vsota += delne_vsote[i1 - 1][j1 - 1] if i1 != 0 and j1 != 0 else 0
+# =====================================================================@029275=
+# 3. podnaloga
+# Sestavite metodo `poenostavi(self)`, ki izraz poenostavi, tako da odpravi
+# "najbolj notranje" operatorje, tj. tiste operatorje, kjer sta oba podizraza
+# števili. Primer (če `d` ustreza zgornjemu izrazu):
+# 
+# 
+#     >>> d.poenostavi()
+#     >>> d
+#     Izraz('+', levo=Izraz('*', levo=Izraz(9), desno=Izraz(-5)), desno=Izraz(15))
+# =============================================================================
 
-    return vsota
 
 
 
@@ -621,20 +623,58 @@ def _validate_current_file():
     Check.initialize(file_parts)
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzOH0:1mng1i:XH0JDgq0MzTVXDVXSrs9c3Rm3qM'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI3M30:1mskhT:sMFKqXthtnl892emVvOFQxYaOA8'
         try:
-            Check.equal('matrika_delnih_vsot([[1, 2, -1], [-5, 4, 6]])', [[1, 3, 2], [-4, 2, 7]])
-            Check.equal('matrika_delnih_vsot([[1, 2, -1], [-5, 4, 6], [2, 0, 1]])', [[1, 3, 2], [-4, 2, 7], [-2, 4, 10]])
+            Check.equal("""Izraz('+', levo=Izraz('*', levo=Izraz(9), desno=Izraz('-', levo=Izraz(2), desno=Izraz(7))), desno=Izraz('*', levo=Izraz(5), desno=Izraz(3))).vrednost()""", -30)
+            Check.equal("""Izraz('+', levo=Izraz(9), desno=Izraz(11)).vrednost()""", 20)
+            Check.equal("""Izraz('+', levo=Izraz(19), desno=Izraz(5)).vrednost()""", 24)
+            Check.equal("""Izraz('-', levo=Izraz(19), desno=Izraz(5)).vrednost()""", 14)
+            Check.equal("""Izraz('-', levo=Izraz(5), desno=Izraz(19)).vrednost()""", -14)
+            Check.equal("""Izraz('*', levo=Izraz(5), desno=Izraz(19)).vrednost()""", 95)
+            Check.equal("""Izraz('+', levo=Izraz(1), desno=Izraz(1)).vrednost()""", 2)
+            Check.equal("""Izraz(113).vrednost()""", 113)
+            Check.equal("""Izraz(12345671234567).vrednost()""", 12345671234567)
+            Check.equal("""Izraz('*', levo=Izraz('-', levo=Izraz(9), desno=Izraz('*', levo=Izraz(2), desno=Izraz(7))), desno=Izraz('-', levo=Izraz(5), desno=Izraz(3))).vrednost()""", -10)
+            Check.equal("""Izraz('*', levo=Izraz('-', levo=Izraz(9), desno=Izraz('*', levo=Izraz(2), desno=Izraz('+', levo=Izraz(7), desno=Izraz(5)))), desno=Izraz('-', levo=Izraz(5), desno=Izraz(13))).vrednost()""", 120)
         except:
             Check.error("Testi sprožijo izjemo\n  {0}",
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzOX0:1mng1i:KDXGfNrGzel4KTRd_RlqiAMcYgo'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI3NH0:1mskhT:3Qz_Uh5xkrrDeZ9yW5yj5yw0MbI'
         try:
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 0, 1, 3, 3)', 12)
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 1, 1, 2, 2)', 4)
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 0, 0, 1, 1)', 1)
+            Check.equal("""Izraz('+', levo=Izraz('*', levo=Izraz(9), desno=Izraz('-', levo=Izraz(2), desno=Izraz(7))), desno=Izraz('*', levo=Izraz(5), desno=Izraz(3))).obicajni_zapis()""", '(9 * (2 - 7)) + (5 * 3)')
+            Check.equal("""Izraz('+', levo=Izraz(9), desno=Izraz(11)).obicajni_zapis()""", '9 + 11')
+            Check.equal("""Izraz('-', levo=Izraz(5), desno=Izraz(19)).obicajni_zapis()""", '5 - 19')
+            Check.equal("""Izraz('*', levo=Izraz(5), desno=Izraz(19)).obicajni_zapis()""", '5 * 19')
+            Check.equal("""Izraz(113).obicajni_zapis()""", '113')
+            Check.equal("""Izraz('*', levo=Izraz('-', levo=Izraz(9), desno=Izraz('-', levo=Izraz(2), desno=Izraz(-7))), desno=Izraz('-', levo=Izraz(5), desno=Izraz(-3))).obicajni_zapis()""", '(9 - (2 - -7)) * (5 - -3)')
+            Check.equal("""Izraz('*', levo=Izraz('-', levo=Izraz(9), desno=Izraz('*', levo=Izraz(2), desno=Izraz('+', levo=Izraz(7), desno=Izraz(5)))), desno=Izraz('-', levo=Izraz(5), desno=Izraz(13))).obicajni_zapis()""", '(9 - (2 * (7 + 5))) * (5 - 13)')
+        except:
+            Check.error("Testi sprožijo izjemo\n  {0}",
+                        "\n  ".join(traceback.format_exc().split("\n"))[:-2])
+
+    if Check.part():
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI3NX0:1mskhT:2FJhilAsBagSXN119JjrMiRVuNw'
+        try:
+            Check.run(["d = Izraz('+', levo=Izraz('*', levo=Izraz(9), desno=Izraz('-', levo=Izraz(2), desno=Izraz(7))), desno=Izraz('*', levo=Izraz(5), desno=Izraz(3)))",
+                       "d.poenostavi()", "d_repr = repr(d)"],
+                      {'d_repr': "Izraz('+', levo=Izraz('*', levo=Izraz(9), desno=Izraz(-5)), desno=Izraz(15))"})
+            Check.run(["d = Izraz('+', levo=Izraz(9), desno=Izraz(11))",
+                       "d.poenostavi()", "d_repr = repr(d)"],
+                      {'d_repr': "Izraz(20)"})
+            Check.run(["d = Izraz('-', levo=Izraz(5), desno=Izraz(19))",
+                       "d.poenostavi()", "d_repr = repr(d)"],
+                      {'d_repr': "Izraz(-14)"})
+            Check.run(["d = Izraz('*', levo=Izraz(5), desno=Izraz(19))",
+                       "d.poenostavi()", "d_repr = repr(d)"],
+                      {'d_repr': "Izraz(95)"})
+            Check.run(["d = Izraz('*', levo=Izraz('-', levo=Izraz(9), desno=Izraz('-', levo=Izraz(2), desno=Izraz(-7))), desno=Izraz('-', levo=Izraz(5), desno=Izraz(-3)))",
+                       "d.poenostavi()", "d_repr = repr(d)"],
+                      {'d_repr': "Izraz('*', levo=Izraz('-', levo=Izraz(9), desno=Izraz(9)), desno=Izraz(8))"})
+            Check.run(["d = Izraz('*', levo=Izraz('-', levo=Izraz(9), desno=Izraz('*', levo=Izraz(2), desno=Izraz('+', levo=Izraz(7), desno=Izraz(5)))), desno=Izraz('-', levo=Izraz(5), desno=Izraz(13)))",
+                       "d.poenostavi()", "d_repr = repr(d)"],
+                      {'d_repr': "Izraz('*', levo=Izraz('-', levo=Izraz(9), desno=Izraz('*', levo=Izraz(2), desno=Izraz(12))), desno=Izraz(-8))"})
         except:
             Check.error("Testi sprožijo izjemo\n  {0}",
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])

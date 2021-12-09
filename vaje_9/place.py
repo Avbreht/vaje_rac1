@@ -1,63 +1,72 @@
 # =============================================================================
-# Največja podvsota matrike
-# =====================================================================@029238=
+# Plače
+#
+# V nekem uspešnem slovenskem podjetju so zaposleni urejeni hierarhično. Vsakdo
+# razen direktorja ima natanko enega nadrejenega. Vsak uslužbenec ima lahko pod
+# seboj največ dva podrejena (levega in desnega). Primer takšne hierarhije
+# (številke so njihove plače):
+# 
+#     lucka = Drevo('Lučka', 800, levo=Drevo('Peter', 900), desno=Drevo('Tadeja', 700))
+#     matjaz = Drevo('Matjaž', 1100, levo=Drevo('Simona', 700), desno=Drevo('Boris', 1000, levo=lucka))
+#     branko = Drevo('Branko', 900, desno=Drevo('Benjamin', 1100))
+#     ales = Drevo('Aleš', 1500, levo=matjaz, desno=branko)
+# 
+# V tem podjetju imajo zelo močen sindikat. Sindikalisti so ugotovili, da
+# višine plač niso pravične. Nedopustno je, da imajo nekateri podrejeni višje
+# plače od svojih nadrejenih! Zato sindikat zahteva, da mora imeti vsak
+# zaposleni vsaj za 100 € višjo plačo od kateregakoli svojega podrejenega.
+# 
+# Direktor bi rad analiziral podatke, preden se spusti v pogajanja s
+# sindikalisti. Podatke o zaposlenih je shranil v podatkovno strukturo `Drevo`,
+# ki je že [implementirana](http://www.fmf.uni-lj.si/~basic/rac1/place.py). V
+# vozliščih so shranjeni podatki o plačah zaposlenih (atribut `placa`) in
+# njihova imena (atribut `ime`).
+# =====================================================================@029270=
 # 1. podnaloga
-# Sestavite funkcijo `matrika_delnih_vsot(matrika)`, ki vrne matriko delnih
-# vsot, v kateri je na vsakem mestu vsota vseh elementov v bloku levo zgoraj od
-# danega mesta. Na primer, če je `matrika` enaka
+# Direktorja zanima, koliko dodatnega denarja bi potreboval vsak mesec, če bi
+# ugodil zahtevam sindikata. Želi, da sestavite funkcijo
+# `odprava_krivic(self)`, ki vrne skupno vsoto denarja, ki bi ga potreboval za
+# odpravo krivic. Primer (če `d` ustreza zgornji sliki):
 # 
-#      1  2 -1
-#     -5  4  6
-#      2  0  1
+#     >>> d.odprava_krivic()
+#     700
 # 
-# mora funkcija vrniti matriko
+# _Komentar:_ Lučka bi po novem prejemala 1000 €, ker dobiva Peter 900 €.
+# Zaradi Lučke bi moral Boris prejemati 1100 €. Zaradi Borisa pa bi moral
+# Matjaž prejemati 1200 €. Branko bi zaradi Benjamina moral prejemati 1200 €.
+# Vsota vseh povišic znaša 700 €.
 # 
-#      1  3  2
-#     -4  2  7
-#     -2  4  10
-# 
-# Če želite uspešno rešiti zadnji del naloge, mora funkcija delovati v
-# linearnem času (v odvisnosti od velikosti matrike).
+# _Komentar 2:_ ne pozabite, da se plače nikomur ne znižajo. Torej če imata
+# podrejena plačo 800 in 900, šef pa 1500 in se recimo zgodi, da bosta
+# podrejena po novem imela plači 850 in 1100, bo šef obdržal plačo 1500 (in ne
+# dobil recimo plačo 1200)
 # =============================================================================
 
-def matrika_delnih_vsot(matrika):
-    m = len(matrika)
-    n = len(matrika[0])
-    delneVsote = matrika
-    for i in range(m):
-        for j in range(n):
-            dVsota = matrika[i][j]
-            dVsota += delneVsote[i - 1][j] if i != 0 else 0
-            dVsota += delneVsote[i][j - 1] if j != 0 else 0
-            dVsota -= delneVsote[i - 1][j - 1] if i != 0 and j != 0 else 0
-
-            delneVsote[i][j] = dVsota
-    return delneVsote
-
-
-
-# =====================================================================@029239=
+# =====================================================================@029271=
 # 2. podnaloga
-# Sestavite funkcijo `vsota_podmatrike(delne_vsote, i1, j1, i2, j2)`, ki iz
-# matrike delnih vsot, kot jo izračuna prejšnja funkcija, v konstantnem času
-# izračuna vsoto vseh elementov med vrsticami `i1` (vključno) in `i2` (brez) ter
-# stolpci `j1` (vključno) in `j2` (brez).
+# Direktor bi sindikaliste rad prepričal, da se razburjajo po nepotrebnem. Rad
+# bi imel seznam imen vseh tistih uslužbencev, ki bi prejeli povišice. (Od vseh
+# takih bo namreč pridobil pisne izjave, da so zadovoljni s svojo plačo.)
+# Napišite funkcijo `pisne_izjave(self)`, ki vrne množico imen vseh zaposlenih,
+# ki bi prejeli povišico. Primer:
 # 
-# Natančneje, če velja `delne_vsote = matrika_delnih_vsot(matrika)`, potem velja
-# 
-#     vsota_podmatrike(delne_vsote, i1, j1, i2, j2)
-#     = sum(vrstica[j1:j2] for vrstica in matrika[i1:i2])
+#     >>> d.pisne_izjave()
+#     {'Lučka', 'Boris', 'Branko', 'Matjaž'}
 # =============================================================================
 
-def vsota_podmatrike(delne_vsote, i1, j1, i2, j2):
-    m = len(delne_vsote)
-    n = len(delne_vsote[0])
-    vsota = delne_vsote[i2-1][j2-1]
-    vsota -= delne_vsote[i1-1][j2-1] if i1 != 0 else 0
-    vsota -= delne_vsote[i2 - 1][j1 - 1] if j1 != 0 else 0
-    vsota += delne_vsote[i1 - 1][j1 - 1] if i1 != 0 and j1 != 0 else 0
+# =====================================================================@029272=
+# 3. podnaloga
+# Po večtedenskih pogajanjih s sindikatom je imel direktor poln k███ vsega,
+# zato je udaril po mizi! Odločil se je, da bo najprej vsem plače zmanjšal na
+# "minimalce", potem pa bo povišal plače na način, ki ga predlaga sindikat.
+# Tako bo volk sit in koza cela. Napišite metodo `uravnilovka(self)`, ki vrne
+# skupno vsoto denarja, ki bi ga na ta način prihranil vsak mesec (glede na
+# trenutne plače). "Minimalec" znaša 500 €. Primer:
+# 
+#     >>> d.uravnilovka()
+#     3100
+# =============================================================================
 
-    return vsota
 
 
 
@@ -621,20 +630,37 @@ def _validate_current_file():
     Check.initialize(file_parts)
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzOH0:1mng1i:XH0JDgq0MzTVXDVXSrs9c3Rm3qM'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI3MH0:1mskhR:RV8nv9tlC_eJRBbE8q5EO4V5rSE'
         try:
-            Check.equal('matrika_delnih_vsot([[1, 2, -1], [-5, 4, 6]])', [[1, 3, 2], [-4, 2, 7]])
-            Check.equal('matrika_delnih_vsot([[1, 2, -1], [-5, 4, 6], [2, 0, 1]])', [[1, 3, 2], [-4, 2, 7], [-2, 4, 10]])
+            lucka = Drevo('Lučka', 800, levo=Drevo('Peter', 900), desno=Drevo('Tadeja', 700))
+            matjaz = Drevo('Matjaž', 1100, levo=Drevo('Simona', 700), desno=Drevo('Boris', 1000, levo=lucka))
+            branko = Drevo('Branko', 900, desno=Drevo('Benjamin', 1100))
+            ales = Drevo('Aleš', 1500, levo=matjaz, desno=branko)
+            Check.equal("""ales.odprava_krivic()""", 700, env = {"ales": ales})
         except:
             Check.error("Testi sprožijo izjemo\n  {0}",
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzOX0:1mng1i:KDXGfNrGzel4KTRd_RlqiAMcYgo'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI3MX0:1mskhR:8pNQ8gC8Ho6Yu4IkEHUK1l1EE5s'
         try:
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 0, 1, 3, 3)', 12)
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 1, 1, 2, 2)', 4)
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 0, 0, 1, 1)', 1)
+            lucka = Drevo('Lučka', 800, levo=Drevo('Peter', 900), desno=Drevo('Tadeja', 700))
+            matjaz = Drevo('Matjaž', 1100, levo=Drevo('Simona', 700), desno=Drevo('Boris', 1000, levo=lucka))
+            branko = Drevo('Branko', 900, desno=Drevo('Benjamin', 1100))
+            ales = Drevo('Aleš', 1500, levo=matjaz, desno=branko)
+            Check.equal("""ales.pisne_izjave()""", {'Lučka', 'Boris', 'Branko', 'Matjaž'}, env = {"ales": ales})
+        except:
+            Check.error("Testi sprožijo izjemo\n  {0}",
+                        "\n  ".join(traceback.format_exc().split("\n"))[:-2])
+
+    if Check.part():
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI3Mn0:1mskhR:Kc7fSK5Uh0hyaEUWOF8TOAnenDY'
+        try:
+            lucka = Drevo('Lučka', 800, levo=Drevo('Peter', 900), desno=Drevo('Tadeja', 700))
+            matjaz = Drevo('Matjaž', 1100, levo=Drevo('Simona', 700), desno=Drevo('Boris', 1000, levo=lucka))
+            branko = Drevo('Branko', 900, desno=Drevo('Benjamin', 1100))
+            ales = Drevo('Aleš', 1500, levo=matjaz, desno=branko)
+            Check.equal("""ales.uravnilovka()""", 3100, env = {"ales": ales})
         except:
             Check.error("Testi sprožijo izjemo\n  {0}",
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])

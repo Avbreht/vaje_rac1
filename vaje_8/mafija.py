@@ -1,63 +1,95 @@
 # =============================================================================
-# Največja podvsota matrike
-# =====================================================================@029238=
+# Mafija
+#
+# V neki mafijski organizaciji so člani urejeni hierarhično. Vsakdo razen
+# botra (vrhovnega šefa) ima natanko enega nadrejenega. Vsak mafijec ima
+# lahko pod seboj največ dva podrejena (levega in desnega). Primer takšne
+# mafijske organizacije:
+# 
+#     mafija = Drevo('Salvatore', 320,
+#                    levo=Drevo('Bernardo', 200,
+#                               levo=Drevo('Matteo', 50),
+#                               desno=Drevo('Carlo', 100,
+#                                           levo=Drevo('Rosalia', 70),
+#                                           desno=Drevo('Tommaso', 50))),
+#                    desno=Drevo('Francesco', 120,
+#                                levo=Drevo('Giuseppe', 70),
+#                                desno=Drevo('Antonio', 60)))
+# 
+# Mafijci morajo zbirati denar s kriminalnimi dejavnostmi. Tisti, ki imajo
+# podrejene, pa ga poleg tega poberejo še od svojih podrejenih. Ves
+# “prisluženi” in prejeti denar morajo oddati svojemu nadrejenemu.
+# 
+# Boter je posumil, da nekateri člani goljufajo. Nekaj denarja, ki ga
+# poberejo od podrejenih, zadržijo zase. Od vsakega člana je pridobil
+# podatek o tem, koliko denarja je oddal naprej. Podatke je shranil v
+# podatkovno strukturo `Drevo`, ki [je že implementirana](http://www.fmf.uni-lj.si/~basic/rac1/mafija.py).
+# =====================================================================@029264=
 # 1. podnaloga
-# Sestavite funkcijo `matrika_delnih_vsot(matrika)`, ki vrne matriko delnih
-# vsot, v kateri je na vsakem mestu vsota vseh elementov v bloku levo zgoraj od
-# danega mesta. Na primer, če je `matrika` enaka
+# Botra zanima, koliko denarja zaradi goljufov “ponikne”. Želi, da
+# sestavite metodo `koliko_ponikne(self)`, ki vrne skupno vsoto denarja,
+# ki ponikne. Primer (če `mafija` ustreza zgornjemu drevesu):
 # 
-#      1  2 -1
-#     -5  4  6
-#      2  0  1
-# 
-# mora funkcija vrniti matriko
-# 
-#      1  3  2
-#     -4  2  7
-#     -2  4  10
-# 
-# Če želite uspešno rešiti zadnji del naloge, mora funkcija delovati v
-# linearnem času (v odvisnosti od velikosti matrike).
+#     >>> mafija.koliko_ponikne()
+#     30
 # =============================================================================
 
-def matrika_delnih_vsot(matrika):
-    m = len(matrika)
-    n = len(matrika[0])
-    delneVsote = matrika
-    for i in range(m):
-        for j in range(n):
-            dVsota = matrika[i][j]
-            dVsota += delneVsote[i - 1][j] if i != 0 else 0
-            dVsota += delneVsote[i][j - 1] if j != 0 else 0
-            dVsota -= delneVsote[i - 1][j - 1] if i != 0 and j != 0 else 0
+class Drevo:
 
-            delneVsote[i][j] = dVsota
-    return delneVsote
+    def __init__(self, *args, **kwargs):
+        if len(args) > 0:
+            self.prazno = False
+            self.ime = args[0]
+            self.vrednost = args[1]
+            self.levo = kwargs.get('levo', Drevo())
+            self.desno = kwargs.get('desno', Drevo())
+        else:
+            self.prazno = True
 
+    def __repr__(self):
+        if self.prazno:
+            return 'Drevo()'
+        else:
+            opis = repr(self.ime) + ', ' + repr(self.vrednost)
+            if not self.levo.prazno: opis += ', levo={0}'.format(self.levo)
+            if not self.desno.prazno: opis += ', desno={0}'.format(self.desno)
+            return 'Drevo({0})'.format(opis)
 
+    def koliko_ponikne(self):
+        if self.prazno:
+            return 0
+        else:
+            return self.vrednost - (self.levo.koliko_ponikne() + self.desno.koliko_ponikne())
 
-# =====================================================================@029239=
+# =====================================================================@029265=
 # 2. podnaloga
-# Sestavite funkcijo `vsota_podmatrike(delne_vsote, i1, j1, i2, j2)`, ki iz
-# matrike delnih vsot, kot jo izračuna prejšnja funkcija, v konstantnem času
-# izračuna vsoto vseh elementov med vrsticami `i1` (vključno) in `i2` (brez) ter
-# stolpci `j1` (vključno) in `j2` (brez).
+# Ko je boter dognal, koliko denarja ponikne, je totalno po████. Pri
+# priči hoče imeti imena vseh goljufov! Napišite metodo `goljufi(self)`,
+# ki vrne množico goljufov. Vsak goljuf naj bo predstavljen z naborom.
+# Prva kompotenta naj bo ime goljufa, druga komponenta pa količina denarja,
+# ki ga je utajil. Primer:
 # 
-# Natančneje, če velja `delne_vsote = matrika_delnih_vsot(matrika)`, potem velja
-# 
-#     vsota_podmatrike(delne_vsote, i1, j1, i2, j2)
-#     = sum(vrstica[j1:j2] for vrstica in matrika[i1:i2])
+#     >>> mafija.goljufi()
+#     {(’Carlo’, 20), (’Francesco’, 10)}
 # =============================================================================
 
-def vsota_podmatrike(delne_vsote, i1, j1, i2, j2):
-    m = len(delne_vsote)
-    n = len(delne_vsote[0])
-    vsota = delne_vsote[i2-1][j2-1]
-    vsota -= delne_vsote[i1-1][j2-1] if i1 != 0 else 0
-    vsota -= delne_vsote[i2 - 1][j1 - 1] if j1 != 0 else 0
-    vsota += delne_vsote[i1 - 1][j1 - 1] if i1 != 0 and j1 != 0 else 0
+# =====================================================================@029266=
+# 3. podnaloga
+# Botru se dozdeva, da so najbolj pridne _majhne ribe_. To so tisti mafijci,
+# ki nimajo pod seboj nobenega podrejenega. Tistim, ki imajo podrejene, se
+# reče _velike ribe_. Napišite metodo `zasluzek(self)`, ki vrne par (nabor)
+# dveh števili, pri čemer je:
+# 
+# * prvo število skupna vsota denarja, ki ga zaslužijo majhne ribe;
+# * drugo število skupna vsota denarja, ki ga zaslužijo velike ribe (brez
+#   pobirkov od podrejenih).
+# 
+# Primer:
+# 
+#     >>> mafija.zasluzek()
+#     (300, 50)
+# =============================================================================
 
-    return vsota
 
 
 
@@ -621,20 +653,57 @@ def _validate_current_file():
     Check.initialize(file_parts)
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzOH0:1mng1i:XH0JDgq0MzTVXDVXSrs9c3Rm3qM'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI2NH0:1mqBun:XpNj7k5kHUgr3FMseB1gvPSapaM'
         try:
-            Check.equal('matrika_delnih_vsot([[1, 2, -1], [-5, 4, 6]])', [[1, 3, 2], [-4, 2, 7]])
-            Check.equal('matrika_delnih_vsot([[1, 2, -1], [-5, 4, 6], [2, 0, 1]])', [[1, 3, 2], [-4, 2, 7], [-2, 4, 10]])
+            test_data = [
+                ("""Drevo('Salvatore', 320, levo=Drevo('Bernardo', 200, levo=Drevo("Matteo", 50), desno=Drevo('Carlo', 100, levo=Drevo('Rosalia', 70), desno=Drevo('Tommaso', 50))), desno=Drevo('Francesco', 120, levo=Drevo('Giuseppe', 70), desno=Drevo('Antonio', 60))).koliko_ponikne()""", 30),
+                ("""Drevo('Mirsad', 1030, levo=Drevo('Slobodan', 570, levo=Drevo('Vid', 220, levo=Drevo('Ervin', 140), desno=Drevo('Andraž', 200)), desno=Drevo('Rok', 430, levo=Drevo('Ivo', 190), desno=Drevo('Maks', 150))), desno=Drevo('Miro', 460, levo=Drevo('Leopold', 210, levo=Drevo('Lovro', 130), desno=Drevo('Tine', 190)), desno=Drevo('Jože', 300, levo=Drevo('Maj', 200), desno=Drevo('Andrej', 150)))).koliko_ponikne()""", 410),
+                ("""Drevo('Rok', 1550, levo=Drevo('Aljoša', 840, levo=Drevo('Anže', 420, levo=Drevo('Tomislav', 190), desno=Drevo('Stanko', 160)), desno=Drevo('Cvetko', 340, levo=Drevo('Zoran', 160), desno=Drevo('Ignac', 130))), desno=Drevo('Jani', 710, levo=Drevo('Ernest', 360, levo=Drevo('Bernard', 180), desno=Drevo('Filip', 130)), desno=Drevo('Jernej', 400, levo=Drevo('Božidar', 170), desno=Drevo('Valentin', 180)))).koliko_ponikne()""", 50),
+                ("""Drevo('Rok', 1690, levo=Drevo('Ivo', 940, levo=Drevo('Aljoša', 620, levo=Drevo('Anej', 190, levo=Drevo('Dejan', 180), desno=Drevo('Matic', 110)), desno=Drevo('Stjepan', 370, levo=Drevo('Peter', 190), desno=Drevo('Željko', 120))), desno=Drevo('Janko', 370, levo=Drevo('Aleks', 240, levo=Drevo('Rudolf', 140), desno=Drevo('Tilen', 150)), desno=Drevo('Zdravko', 240, levo=Drevo('Franjo', 190), desno=Drevo('Niko', 120)))), desno=Drevo('Robert', 750, levo=Drevo('Drago', 320, levo=Drevo('Maks', 210, levo=Drevo('Igor', 150), desno=Drevo('Milan', 180)), desno=Drevo('Filip', 240, levo=Drevo('Primož', 200), desno=Drevo('Joško', 150))), desno=Drevo('Patrik', 550, levo=Drevo('Miro', 460, levo=Drevo('Ivan', 190), desno=Drevo('Matevž', 180)), desno=Drevo('Jožef', 160, levo=Drevo('Nikolaj', 110), desno=Drevo('Gal', 160))))).koliko_ponikne()""", 1040),
+            ]
+            for td in test_data:
+                if not Check.equal(*td):
+                    break
         except:
             Check.error("Testi sprožijo izjemo\n  {0}",
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzOX0:1mng1i:KDXGfNrGzel4KTRd_RlqiAMcYgo'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI2NX0:1mqBun:tQAfVr53m_nJuazjtyUGhox4yik'
         try:
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 0, 1, 3, 3)', 12)
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 1, 1, 2, 2)', 4)
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 0, 0, 1, 1)', 1)
+            test_data = [
+                ("""Drevo('Salvatore', 320, levo=Drevo('Bernardo', 200, levo=Drevo("Matteo", 50), desno=Drevo('Carlo', 100, levo=Drevo('Rosalia', 70), desno=Drevo('Tommaso', 50))), desno=Drevo('Francesco', 120, levo=Drevo('Giuseppe', 70), desno=Drevo('Antonio', 60))).goljufi()""",
+                 {('Francesco', 10), ('Carlo', 20)}),
+                ("""Drevo('Mirsad', 1030, levo=Drevo('Slobodan', 570, levo=Drevo('Vid', 220, levo=Drevo('Ervin', 140), desno=Drevo('Andraž', 200)), desno=Drevo('Rok', 430, levo=Drevo('Ivo', 190), desno=Drevo('Maks', 150))), desno=Drevo('Miro', 460, levo=Drevo('Leopold', 210, levo=Drevo('Lovro', 130), desno=Drevo('Tine', 190)), desno=Drevo('Jože', 300, levo=Drevo('Maj', 200), desno=Drevo('Andrej', 150)))).goljufi()""",
+                 {('Slobodan', 80), ('Leopold', 110), ('Miro', 50), ('Vid', 120), ('Jože', 50)}),
+                ("""Drevo('Rok', 1550, levo=Drevo('Aljoša', 840, levo=Drevo('Anže', 420, levo=Drevo('Tomislav', 190), desno=Drevo('Stanko', 160)), desno=Drevo('Cvetko', 340, levo=Drevo('Zoran', 160), desno=Drevo('Ignac', 130))), desno=Drevo('Jani', 710, levo=Drevo('Ernest', 360, levo=Drevo('Bernard', 180), desno=Drevo('Filip', 130)), desno=Drevo('Jernej', 400, levo=Drevo('Božidar', 170), desno=Drevo('Valentin', 180)))).goljufi()""",
+                 {('Jani', 50)}),
+                ("""Drevo('Rok', 1690, levo=Drevo('Ivo', 940, levo=Drevo('Aljoša', 620, levo=Drevo('Anej', 190, levo=Drevo('Dejan', 180), desno=Drevo('Matic', 110)), desno=Drevo('Stjepan', 370, levo=Drevo('Peter', 190), desno=Drevo('Željko', 120))), desno=Drevo('Janko', 370, levo=Drevo('Aleks', 240, levo=Drevo('Rudolf', 140), desno=Drevo('Tilen', 150)), desno=Drevo('Zdravko', 240, levo=Drevo('Franjo', 190), desno=Drevo('Niko', 120)))), desno=Drevo('Robert', 750, levo=Drevo('Drago', 320, levo=Drevo('Maks', 210, levo=Drevo('Igor', 150), desno=Drevo('Milan', 180)), desno=Drevo('Filip', 240, levo=Drevo('Primož', 200), desno=Drevo('Joško', 150))), desno=Drevo('Patrik', 550, levo=Drevo('Miro', 460, levo=Drevo('Ivan', 190), desno=Drevo('Matevž', 180)), desno=Drevo('Jožef', 160, levo=Drevo('Nikolaj', 110), desno=Drevo('Gal', 160))))).goljufi()""",
+                 {('Janko', 110), ('Anej', 100), ('Robert', 120), ('Patrik', 70), ('Ivo', 50), ('Filip', 110), ('Zdravko', 70), ('Aleks', 50), ('Drago', 130), ('Maks', 120), ('Jožef', 110)}),
+            ]
+            for td in test_data:
+                if not Check.equal(*td):
+                    break
+        except:
+            Check.error("Testi sprožijo izjemo\n  {0}",
+                        "\n  ".join(traceback.format_exc().split("\n"))[:-2])
+
+    if Check.part():
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI2Nn0:1mqBun:zUdU_JYQH6n9ucgdAH-Lm_1zN3Y'
+        try:
+            test_data = [
+                ("""Drevo('Salvatore', 320, levo=Drevo('Bernardo', 200, levo=Drevo("Matteo", 50), desno=Drevo('Carlo', 100, levo=Drevo('Rosalia', 70), desno=Drevo('Tommaso', 50))), desno=Drevo('Francesco', 120, levo=Drevo('Giuseppe', 70), desno=Drevo('Antonio', 60))).zasluzek()""",
+                 (300, 50)),
+                ("""Drevo('Mirsad', 1030, levo=Drevo('Slobodan', 570, levo=Drevo('Vid', 220, levo=Drevo('Ervin', 140), desno=Drevo('Andraž', 200)), desno=Drevo('Rok', 430, levo=Drevo('Ivo', 190), desno=Drevo('Maks', 150))), desno=Drevo('Miro', 460, levo=Drevo('Leopold', 210, levo=Drevo('Lovro', 130), desno=Drevo('Tine', 190)), desno=Drevo('Jože', 300, levo=Drevo('Maj', 200), desno=Drevo('Andrej', 150)))).zasluzek()""",
+                 (1350, 90)),
+                ("""Drevo('Rok', 1550, levo=Drevo('Aljoša', 840, levo=Drevo('Anže', 420, levo=Drevo('Tomislav', 190), desno=Drevo('Stanko', 160)), desno=Drevo('Cvetko', 340, levo=Drevo('Zoran', 160), desno=Drevo('Ignac', 130))), desno=Drevo('Jani', 710, levo=Drevo('Ernest', 360, levo=Drevo('Bernard', 180), desno=Drevo('Filip', 130)), desno=Drevo('Jernej', 400, levo=Drevo('Božidar', 170), desno=Drevo('Valentin', 180)))).zasluzek()""",
+                 (1300, 300)),
+                ("""Drevo('Rok', 1690, levo=Drevo('Ivo', 940, levo=Drevo('Aljoša', 620, levo=Drevo('Anej', 190, levo=Drevo('Dejan', 180), desno=Drevo('Matic', 110)), desno=Drevo('Stjepan', 370, levo=Drevo('Peter', 190), desno=Drevo('Željko', 120))), desno=Drevo('Janko', 370, levo=Drevo('Aleks', 240, levo=Drevo('Rudolf', 140), desno=Drevo('Tilen', 150)), desno=Drevo('Zdravko', 240, levo=Drevo('Franjo', 190), desno=Drevo('Niko', 120)))), desno=Drevo('Robert', 750, levo=Drevo('Drago', 320, levo=Drevo('Maks', 210, levo=Drevo('Igor', 150), desno=Drevo('Milan', 180)), desno=Drevo('Filip', 240, levo=Drevo('Primož', 200), desno=Drevo('Joško', 150))), desno=Drevo('Patrik', 550, levo=Drevo('Miro', 460, levo=Drevo('Ivan', 190), desno=Drevo('Matevž', 180)), desno=Drevo('Jožef', 160, levo=Drevo('Nikolaj', 110), desno=Drevo('Gal', 160))))).zasluzek()""",
+                 (2520, 210)),
+            ]
+            for td in test_data:
+                if not Check.equal(*td):
+                    break
         except:
             Check.error("Testi sprožijo izjemo\n  {0}",
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])

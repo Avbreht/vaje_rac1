@@ -1,63 +1,70 @@
 # =============================================================================
-# Največja podvsota matrike
-# =====================================================================@029238=
+# Množice z iskalnimi drevesi
+#
+# Podatkovno strukturo množica lahko učinkovito predstavimo z iskalnim drevesom.
+# V tej nalogi bomo najprej definirali nekaj pomožnih funkcij na drevesih, nato
+# pa definirali razred `Mnozica`, ki podpira osnovne operacije na množicah.
+# =====================================================================@029279=
 # 1. podnaloga
-# Sestavite funkcijo `matrika_delnih_vsot(matrika)`, ki vrne matriko delnih
-# vsot, v kateri je na vsakem mestu vsota vseh elementov v bloku levo zgoraj od
-# danega mesta. Na primer, če je `matrika` enaka
-# 
-#      1  2 -1
-#     -5  4  6
-#      2  0  1
-# 
-# mora funkcija vrniti matriko
-# 
-#      1  3  2
-#     -4  2  7
-#     -2  4  10
-# 
-# Če želite uspešno rešiti zadnji del naloge, mora funkcija delovati v
-# linearnem času (v odvisnosti od velikosti matrike).
+# Sestavite funkcijo `vstavi_v_iskalno_drevo(drevo, x)`, ki v iskalno drevo na
+# pravo mesto vstavi element `x` ter vrne novo drevo. Če je `x` enak podatku
+# v korenu drevesa, naj funkcija vrne prvotno drevo.
 # =============================================================================
 
-def matrika_delnih_vsot(matrika):
-    m = len(matrika)
-    n = len(matrika[0])
-    delneVsote = matrika
-    for i in range(m):
-        for j in range(n):
-            dVsota = matrika[i][j]
-            dVsota += delneVsote[i - 1][j] if i != 0 else 0
-            dVsota += delneVsote[i][j - 1] if j != 0 else 0
-            dVsota -= delneVsote[i - 1][j - 1] if i != 0 and j != 0 else 0
-
-            delneVsote[i][j] = dVsota
-    return delneVsote
-
-
-
-# =====================================================================@029239=
+# =====================================================================@029280=
 # 2. podnaloga
-# Sestavite funkcijo `vsota_podmatrike(delne_vsote, i1, j1, i2, j2)`, ki iz
-# matrike delnih vsot, kot jo izračuna prejšnja funkcija, v konstantnem času
-# izračuna vsoto vseh elementov med vrsticami `i1` (vključno) in `i2` (brez) ter
-# stolpci `j1` (vključno) in `j2` (brez).
-# 
-# Natančneje, če velja `delne_vsote = matrika_delnih_vsot(matrika)`, potem velja
-# 
-#     vsota_podmatrike(delne_vsote, i1, j1, i2, j2)
-#     = sum(vrstica[j1:j2] for vrstica in matrika[i1:i2])
+# Sestavite funkcijo `ali_vsebuje(drevo, x)`, ki vrne `True`, če dano iskalno
+# drevo vsebuje podatek `x`, in `False`, če ga ne.
 # =============================================================================
 
-def vsota_podmatrike(delne_vsote, i1, j1, i2, j2):
-    m = len(delne_vsote)
-    n = len(delne_vsote[0])
-    vsota = delne_vsote[i2-1][j2-1]
-    vsota -= delne_vsote[i1-1][j2-1] if i1 != 0 else 0
-    vsota -= delne_vsote[i2 - 1][j1 - 1] if j1 != 0 else 0
-    vsota += delne_vsote[i1 - 1][j1 - 1] if i1 != 0 and j1 != 0 else 0
+# =====================================================================@029281=
+# 3. podnaloga
+# Z razredom `Mnozica` bomo predstavili nespremenljive množice, torej take, ki
+# ne podpirajo metod za dodajanje in odstranjevanje elementov, le metode, ki
+# izračunajo nove množice iz obstoječih. Vsako množico bomo predstavili z
+# objektom, ki ima dva atributa: iskalnim drevesom elementov `_elementi` ter
+# velikostjo `_velikost`.
+# 
+# Sestavite razred `Mnozica` z metodo `__init__`, ki mu za neobvezen prvi
+# argument lahko podamo iterator začetnih elementov množice.
+# =============================================================================
 
-    return vsota
+# =====================================================================@029282=
+# 4. podnaloga
+# Dodajte metodo `__iter__`, ki vrne iterator, ki našteva elemente množice od
+# najmanjšega do največjega.
+# =============================================================================
+
+# =====================================================================@029283=
+# 5. podnaloga
+# Za lepši prikaz dodajte še metodo `__str__`, ki vrne niz oblike
+# `{el1, el2, ...}`, kjer so elementi množice našteti od najmanjšega do
+# največjega.
+# =============================================================================
+
+# =====================================================================@029284=
+# 6. podnaloga
+# Za dostop do velikosti množice `mn` in iskanja elementov v njej bi sicer lahko
+# napisali metodi `mn.velikost()` in `mn.vsebuje(x)`, vendar je bolj Pythonovsko,
+# da definiramo metodi `__len__` in `__contains__`, da lahko pišemo kar `len(mn)`
+# in `x in mn` oz. `x not in mn`. Definirajte ju.
+# =============================================================================
+
+# =====================================================================@029285=
+# 7. podnaloga
+# Definirajte še metodi `__or__` in `__and__`, ki sprejmeta dve množici ter
+# vrneta njuno unijo in presek. Stvari naredite učinkovite tako, da upoštevate
+# velikost množic.
+# =============================================================================
+
+# =====================================================================@029286=
+# 8. podnaloga
+# Kaj bi se zgodilo, če bi sestavili množico z `Mnozica(range(1000000))`? Ali
+# bi bila taka podatkovna struktura učinkovita? Na vajah se bomo pogovorili o
+# tem, kako lahko izboljšamo učinkovitost s tem, da uporabimo uravnotežena
+# dvojiška drevesa.
+# =============================================================================
+
 
 
 
@@ -621,20 +628,101 @@ def _validate_current_file():
     Check.initialize(file_parts)
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzOH0:1mng1i:XH0JDgq0MzTVXDVXSrs9c3Rm3qM'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI3OX0:1mskhX:KVFrcS7Dj5dNbTzAOGUtDC_q5LE'
         try:
-            Check.equal('matrika_delnih_vsot([[1, 2, -1], [-5, 4, 6]])', [[1, 3, 2], [-4, 2, 7]])
-            Check.equal('matrika_delnih_vsot([[1, 2, -1], [-5, 4, 6], [2, 0, 1]])', [[1, 3, 2], [-4, 2, 7], [-2, 4, 10]])
+            Check.equal('vstavi_v_iskalno_drevo(Drevo(), 5)', Drevo(5))
+            Check.equal('vstavi_v_iskalno_drevo(Drevo(5), 4)', Drevo(5, levo=Drevo(4)))
+            Check.equal('vstavi_v_iskalno_drevo(Drevo(5), 5)', Drevo(5))
+            Check.equal('vstavi_v_iskalno_drevo(Drevo(5, levo=Drevo(4)), 7)', Drevo(5, levo=Drevo(4), desno=Drevo(7)))
+            Check.equal('vstavi_v_iskalno_drevo(Drevo(5, levo=Drevo(4), desno=Drevo(7)), 6)', Drevo(5, levo=Drevo(4), desno=Drevo(7, levo=Drevo(6))))
         except:
             Check.error("Testi sprožijo izjemo\n  {0}",
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzOX0:1mng1i:KDXGfNrGzel4KTRd_RlqiAMcYgo'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI4MH0:1mskhX:zlItFjRnrdYGscyA4gLM8axarHI'
         try:
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 0, 1, 3, 3)', 12)
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 1, 1, 2, 2)', 4)
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 0, 0, 1, 1)', 1)
+            Check.equal('ali_vsebuje(Drevo(), 5)', False)
+            Check.equal('ali_vsebuje(Drevo(5, levo=Drevo(4), desno=Drevo(7)), 4)', True)
+            Check.equal('ali_vsebuje(Drevo(5, levo=Drevo(4), desno=Drevo(7)), 5)', True)
+            Check.equal('ali_vsebuje(Drevo(5, levo=Drevo(4), desno=Drevo(7)), 6)', False)
+            Check.equal('ali_vsebuje(Drevo(5, levo=Drevo(4), desno=Drevo(7)), 7)', True)
+        except:
+            Check.error("Testi sprožijo izjemo\n  {0}",
+                        "\n  ".join(traceback.format_exc().split("\n"))[:-2])
+
+    if Check.part():
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI4MX0:1mskhX:ndSBCLRwRKyUWTbngr5H1Q4liZA'
+        try:
+            Check.run([
+                'mn = Mnozica()',
+                'elementi = mn._elementi',
+                'velikost = mn._velikost',
+            ], {'elementi': Drevo(), 'velikost': 0})
+            Check.run([
+                'vsebuje_vse = all(ali_vsebuje(Mnozica([3, 4, 5])._elementi, x) for x in [3, 4, 5])',
+                'velikost = Mnozica([3, 4, 5])._velikost',
+            ], {'vsebuje_vse': True, 'velikost': 3})
+            Check.run([
+                "vsebuje_vse = all(ali_vsebuje(Mnozica('xy')._elementi, x) for x in 'xy')",
+                "velikost = Mnozica('xy')._velikost",
+            ], {'vsebuje_vse': True, 'velikost': 2})
+            Check.run([
+                "vsebuje_vse = all(ali_vsebuje(Mnozica('mama')._elementi, x) for x in 'mama')",
+                "velikost = Mnozica('mama')._velikost",
+            ], {'vsebuje_vse': True, 'velikost': 2})
+        except:
+            Check.error("Testi sprožijo izjemo\n  {0}",
+                        "\n  ".join(traceback.format_exc().split("\n"))[:-2])
+
+    if Check.part():
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI4Mn0:1mskhX:JNI0m34VrT553tvLgCGwNFe3VF0'
+        try:
+            Check.generator('iter(Mnozica())', [], should_stop=True)
+            Check.generator('iter(Mnozica([10, 5, 0]))', [0, 5, 10], should_stop=True)
+            Check.generator("iter(Mnozica('mama'))", ['a', 'm'], should_stop=True)
+            Check.generator("iter(Mnozica([9, 5, 2, 13, 10, 21]))", [2, 5, 9, 10, 13, 21], should_stop=True)
+        except:
+            Check.error("Testi sprožijo izjemo\n  {0}",
+                        "\n  ".join(traceback.format_exc().split("\n"))[:-2])
+
+    if Check.part():
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI4M30:1mskhX:O6nrWk5Wtcmivk5R34T8ubGN4z8'
+        try:
+            Check.equal('str(Mnozica())', '{}')
+            Check.equal('str(Mnozica([10, 5, 0]))', '{0, 5, 10}')
+            Check.equal("str(Mnozica('mama'))", "{'a', 'm'}")
+        except:
+            Check.error("Testi sprožijo izjemo\n  {0}",
+                        "\n  ".join(traceback.format_exc().split("\n"))[:-2])
+
+    if Check.part():
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI4NH0:1mskhX:5W_7AwhJtPUK3K5pTaWYrIPhYc0'
+        try:
+            Check.equal('len(Mnozica())', 0)
+            Check.equal('len(Mnozica([10, 5, 0]))', 3)
+            Check.equal("len(Mnozica('mama'))", 2)
+            Check.equal('3 in Mnozica()', False)
+            Check.equal('5 in Mnozica([10, 5, 0])', True)
+            Check.equal("'x' not in Mnozica('mama')", True)
+            Check.equal("'m' in Mnozica('mama')", True)
+        except:
+            Check.error("Testi sprožijo izjemo\n  {0}",
+                        "\n  ".join(traceback.format_exc().split("\n"))[:-2])
+
+    if Check.part():
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI4NX0:1mskhX:8rmZ52F26acQRjxxGgXu2xva1sQ'
+        try:
+            Check.equal('str(Mnozica([1, 2, 3]) | Mnozica([3, 4, 5]))', '{1, 2, 3, 4, 5}')
+            Check.equal('str(Mnozica([1, 2, 3]) & Mnozica([3, 4, 5]))', '{3}')
+        except:
+            Check.error("Testi sprožijo izjemo\n  {0}",
+                        "\n  ".join(traceback.format_exc().split("\n"))[:-2])
+
+    if Check.part():
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI4Nn0:1mskhX:xT1OWPr-z25GoN_fC84WM_PFCxY'
+        try:
+            pass
         except:
             Check.error("Testi sprožijo izjemo\n  {0}",
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])

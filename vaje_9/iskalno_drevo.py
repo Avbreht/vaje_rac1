@@ -1,63 +1,102 @@
 # =============================================================================
-# Največja podvsota matrike
-# =====================================================================@029238=
+# Iskalno drevo
+#
+# Razred `IskalnoDrevo` je podoben razredu `Drevo`. Njegov konstruktor
+# `__init__` sprejme iterator in sestavi drevo, ki ga dobimo, če elemente
+# seznama po vrsti vstavljamo v iskalno drevo. Osnutek implementacije dobite
+# [tukaj](http://www.fmf.uni-lj.si/~basic/rac1/iskalno_drevo.py).
+# 
+# Razredu smo dodali tudi metodo `pravilno`, ki vrne `True`, če je drevo res
+# iskalno (torej, če so v levem poddrevesu vsi podatki manjši, v desnem pa vsi
+# večji od podatka v korenu).
+# =====================================================================@029276=
 # 1. podnaloga
-# Sestavite funkcijo `matrika_delnih_vsot(matrika)`, ki vrne matriko delnih
-# vsot, v kateri je na vsakem mestu vsota vseh elementov v bloku levo zgoraj od
-# danega mesta. Na primer, če je `matrika` enaka
+# Sestavite metodo `dodaj(self, podatek)`, ki v iskalno drevo vstavi nov
+# podatek. Konstruktor kliče metodo `dodaj`; konstruktor ne bo deloval, dokler
+# ne napišete pravilne implementacije metode `dodaj`. Zgled:
 # 
-#      1  2 -1
-#     -5  4  6
-#      2  0  1
-# 
-# mora funkcija vrniti matriko
-# 
-#      1  3  2
-#     -4  2  7
-#     -2  4  10
-# 
-# Če želite uspešno rešiti zadnji del naloge, mora funkcija delovati v
-# linearnem času (v odvisnosti od velikosti matrike).
+#     >>> d = IskalnoDrevo([6, 9, 4, 7, 5, 1, 3])
+#     >>> d
+#     IskalnoDrevo(6,
+#         levo = IskalnoDrevo(4,
+#                     levo = IskalnoDrevo(1,
+#                                     levo = IskalnoDrevo(),
+#                                     desno = IskalnoDrevo(3)),
+#                     desno = IskalnoDrevo(5)),
+#         desno = IskalnoDrevo(9,
+#                         levo = IskalnoDrevo(7),
+#                         desno = IskalnoDrevo()))
 # =============================================================================
+class IskalnoDrevo:
 
-def matrika_delnih_vsot(matrika):
-    m = len(matrika)
-    n = len(matrika[0])
-    delneVsote = matrika
-    for i in range(m):
-        for j in range(n):
-            dVsota = matrika[i][j]
-            dVsota += delneVsote[i - 1][j] if i != 0 else 0
-            dVsota += delneVsote[i][j - 1] if j != 0 else 0
-            dVsota -= delneVsote[i - 1][j - 1] if i != 0 and j != 0 else 0
+    def __init__(self, vsebina=[]):
+        self.prazno = True
+        for n in vsebina:
+            self.dodaj(n)
 
-            delneVsote[i][j] = dVsota
-    return delneVsote
+    def __repr__(self, zamik = ''):
+        if self.prazno:
+          return 'IskalnoDrevo()'.format(zamik)
+        elif self.levo.prazno and self.desno.prazno:
+          return 'IskalnoDrevo({1})'.format(zamik, self.vsebina)
+        else:
+          return 'IskalnoDrevo({1},\n{0}      levo = {2},\n{0}      desno = {3})'.\
+            format(
+              zamik,
+              self.vsebina,
+              self.levo.__repr__(zamik + '             '),
+              self.desno.__repr__(zamik + '              ')
+            )
+
+    def pravilno(self, minimum=None, maksimum=None):
+        if self.prazno:
+            return True
+        elif minimum and self.vsebina < minimum:
+            return False
+        elif maksimum and self.vsebina > maksimum:
+            return False
+        else:
+            return (self.levo.pravilno(minimum, self.vsebina) and
+                    self.desno.pravilno(self.vsebina, maksimum))
+
+    def dodaj(self, podatek):
+        if podatek < self.vsebina:
+            if self.levo is None:
+                self.levo = IskalnoDrevo(podatek)
+            else:
+                self.levo.dodaj(podatek)
+        else:
+            if self.desno is None:
+                self.desno = IskalnoDrevo(podatek)
+            else:
+                self.desno.dodaj(podatek)
 
 
-
-# =====================================================================@029239=
+# =====================================================================@029277=
 # 2. podnaloga
-# Sestavite funkcijo `vsota_podmatrike(delne_vsote, i1, j1, i2, j2)`, ki iz
-# matrike delnih vsot, kot jo izračuna prejšnja funkcija, v konstantnem času
-# izračuna vsoto vseh elementov med vrsticami `i1` (vključno) in `i2` (brez) ter
-# stolpci `j1` (vključno) in `j2` (brez).
+# Sestavite metodo `poisci(self, podatek)`, ki v iskalnem drevesu poišče
+# `podatek`. Vrne naj drevo, ki ga vsebuje v korenu, oziroma `None`, če ga ni v
+# drevesu. Zgled:
 # 
-# Natančneje, če velja `delne_vsote = matrika_delnih_vsot(matrika)`, potem velja
-# 
-#     vsota_podmatrike(delne_vsote, i1, j1, i2, j2)
-#     = sum(vrstica[j1:j2] for vrstica in matrika[i1:i2])
+#     >>> d = IskalnoDrevo([6, 9, 4, 7, 5, 1, 3])
+#     >>> d.poisci(9)
+#     IskalnoDrevo(9,
+#           levo = IskalnoDrevo(7),
+#           desno = IskalnoDrevo())
+#     >>> d.poisci(11) is None
+#     True
 # =============================================================================
 
-def vsota_podmatrike(delne_vsote, i1, j1, i2, j2):
-    m = len(delne_vsote)
-    n = len(delne_vsote[0])
-    vsota = delne_vsote[i2-1][j2-1]
-    vsota -= delne_vsote[i1-1][j2-1] if i1 != 0 else 0
-    vsota -= delne_vsote[i2 - 1][j1 - 1] if j1 != 0 else 0
-    vsota += delne_vsote[i1 - 1][j1 - 1] if i1 != 0 and j1 != 0 else 0
+# =====================================================================@029278=
+# 3. podnaloga
+# Sestavite generator `po_vrsti(self)`, ki našteje vse podatke v drevesu od
+# najmanjšega do največjega. Generator naj vrača vrednosti. Zgled:
+# 
+#     >>> d = IskalnoDrevo([6, 9, 4, 7, 5, 1, 3])
+#     >>> [x for x in d.po_vrsti()]
+#     [1, 3, 4, 5, 6, 7, 9]
+# =============================================================================
 
-    return vsota
 
 
 
@@ -621,20 +660,78 @@ def _validate_current_file():
     Check.initialize(file_parts)
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzOH0:1mng1i:XH0JDgq0MzTVXDVXSrs9c3Rm3qM'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI3Nn0:1mskhV:xm618UJ7xvOBXIRxCiWJ5lf5BZk'
         try:
-            Check.equal('matrika_delnih_vsot([[1, 2, -1], [-5, 4, 6]])', [[1, 3, 2], [-4, 2, 7]])
-            Check.equal('matrika_delnih_vsot([[1, 2, -1], [-5, 4, 6], [2, 0, 1]])', [[1, 3, 2], [-4, 2, 7], [-2, 4, 10]])
+            test_data_run = [
+                (["d = IskalnoDrevo()",
+                  "d.dodaj(3)",
+                  "d.dodaj(5)",
+                  "d.dodaj(4)",
+                  "x = (d.vsebina, d.levo.prazno, d.desno.vsebina, d.desno.levo.vsebina)"
+                 ], {'x': (3, True, 5, 4)}),
+            ]
+            test_data_eq = [
+                ("""IskalnoDrevo([3, 9, 2, 4, 1, 8, 7, 4, 6]).pravilno()""", True),
+                ("""IskalnoDrevo([6, 9, 4, 7, 5, 1, 3]).pravilno()""", True),
+            ]
+            vse_ok = True
+            for td_run in test_data_run:
+                if not Check.run(*td_run):
+                    vse_ok = False
+                    break
+            if vse_ok:
+                for td_eq in test_data_eq:
+                    if not Check.equal(*td_eq):
+                        break
+            for i in range(1, 5):
+                Check.secret(IskalnoDrevo({(3*(n + 4)**7 + 4) % (300 * i**2) for n in range(100)}))
         except:
             Check.error("Testi sprožijo izjemo\n  {0}",
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzOX0:1mng1i:KDXGfNrGzel4KTRd_RlqiAMcYgo'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI3N30:1mskhV:S6R4uWsR-T_GlWE5RtOp4sHylew'
         try:
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 0, 1, 3, 3)', 12)
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 1, 1, 2, 2)', 4)
-            Check.equal('vsota_podmatrike([[1, 3, 2], [-4, 2, 7], [-2, 4, 10]], 0, 0, 1, 1)', 1)
+            test_data = [
+                ("""IskalnoDrevo([6, 9, 4, 7, 5, 1, 3]).poisci(9).vsebina""", 9),
+                ("""IskalnoDrevo([6, 9, 4, 7, 5, 1, 3]).poisci(6).vsebina""", 6),
+                ("""IskalnoDrevo([6, 9, 4, 7, 5, 1, 3]).poisci(4).vsebina""", 4),
+                ("""IskalnoDrevo([6, 9, 4, 7, 5, 1, 3]).poisci(7).vsebina""", 7),
+                ("""IskalnoDrevo([6, 9, 4, 7, 5, 1, 3]).poisci(5).vsebina""", 5),
+                ("""IskalnoDrevo([6, 9, 4, 7, 5, 1, 3]).poisci(1).vsebina""", 1),
+                ("""IskalnoDrevo([6, 9, 4, 7, 5, 1, 3]).poisci(3).vsebina""", 3),
+                ("""IskalnoDrevo([6, 9, 4, 7, 5, 1, 3]).poisci(8)""", None),
+                ("""IskalnoDrevo([6, 9, 4, 7, 5, 1, 3]).poisci(2)""", None),
+                ("""IskalnoDrevo([3, 9, 2, 4, 1, 8, 7, 4, 6]).poisci(2).vsebina""", 2),
+                ("""IskalnoDrevo([3, 9, 2, 4, 1, 8, 7, 4, 6]).poisci(1).vsebina""", 1),
+                ("""IskalnoDrevo([3, 9, 2, 4, 1, 8, 7, 4, 6]).poisci(9).vsebina""", 9),
+                ("""IskalnoDrevo([3, 9, 2, 4, 1, 8, 7, 4, 6]).poisci(11)""", None),
+                ("""IskalnoDrevo([3, 9, 2, 4, 1, 8, 7, 4, 6]).poisci(5)""", None),
+                ("IskalnoDrevo([3, 5, 4]).poisci(4).vsebina", 4),
+                ("IskalnoDrevo([3, 5, 4]).poisci(7)", None),
+            ]
+            for td in test_data:
+                if not Check.equal(*td):
+                    break
+            for i in range(1, 5):
+                Check.secret(IskalnoDrevo({(3*(n + 4)**7 + 4) % (300 * i**2) for n in range(100)}).poisci(5))
+        except:
+            Check.error("Testi sprožijo izjemo\n  {0}",
+                        "\n  ".join(traceback.format_exc().split("\n"))[:-2])
+
+    if Check.part():
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI3OH0:1mskhV:Ejiu-Yt4Vj4AIQH0IHPzyAhLTcU'
+        try:
+            test_data = [
+                ("""list(IskalnoDrevo([6, 9, 4, 7, 5, 1, 3]).po_vrsti())""", [1, 3, 4, 5, 6, 7, 9]),
+                ("""list(IskalnoDrevo([3, 9, 2, 4, 1, 8, 7, 6]).po_vrsti())""", [1, 2, 3, 4, 6, 7, 8, 9]),
+                ("""list(IskalnoDrevo([1, 8, 3, 7, 9, 2, 4, 5, 6]).po_vrsti())""", [1, 2, 3, 4, 5, 6, 7, 8, 9]),
+            ]
+            for td in test_data:
+                if not Check.equal(*td):
+                    break
+            for i in range(1, 5):
+                Check.secret(list(IskalnoDrevo({(3*(n + 4)**7 + 4) % (300 * i**2) for n in range(100)}).po_vrsti()))
         except:
             Check.error("Testi sprožijo izjemo\n  {0}",
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])

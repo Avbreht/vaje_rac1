@@ -1,13 +1,7 @@
-from veriga_vozlov import Vozel, dodaj_na_konec, dodaj_na_zacetek, vrni_seznam, iz_seznama
 
-v = Vozel(1)
-v.naslednji = Vozel(4)
+print(len([0, 1, 1, 0]))
 
+rez = [0 for i in range(4)]
 
-w = None
-dodaj_na_konec(w, 1)
-print(w)
-
-k = dodaj_na_konec(None, 1)
-print(k)
-
+for i in range(4, 0, -1):
+    print(i)

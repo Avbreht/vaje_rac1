@@ -1,112 +1,170 @@
 # =============================================================================
-# Spreminjanje dreves
+# 0/1 nahrbtnik
 #
-# [Dan je](http://www.fmf.uni-lj.si/~basic/rac1/drevo.py) razred `Drevo`, ki
-# predstavlja dvojiško drevo.
-# =====================================================================@029267=
+# Pri reševanju problema 0/1 nahrbtnika imamo opravka z množicami $S_i$ in
+# $Z_i$. Predstavili jih bomo s seznami parov, ki so urejeni naraščajoče po
+# prvih komponentah.
+# =====================================================================@029306=
 # 1. podnaloga
-# Dodajte metodo `odrezi(self, n)`, ki odstrani vsa vozlišča, ki ležijo na
-# globini (oz. nivojih) večji od `n`. Zgled:
+# Sestavi funkcijo `preveri(s)`, ki za parameter `s` dobi seznam parov.
+# Funkcija naj ugotovi, ali ta seznam lahko (teoretično) predstavlja neko
+# množico $S$ za nek problem 0/1 nahrbtnika.
 # 
-#     >>> d = Drevo(5,
-#                   levo=Drevo(3, levo=Drevo(1)),
-#                   desno=Drevo(2, levo=Drevo(6), desno=Drevo(9)))
-#     >>> d.odrezi(2)
-#     >>> d
-#     Drevo(5,
-#           levo = Drevo(3),
-#           desno = Drevo(2))
+#     >>> preveri([(0,0),(3,7),(4,9),(8,12),(11,17),(20,33)])
+#     True
 # =============================================================================
 
-class Drevo:
+def preveri(s):
+    if s == []:
+        return False
+    if s[0] != (0, 0):
+        return False
+    for i in range(len(s) - 1):
+        if s[i][0] >= s[i + 1][0] or s[i][1] >= s[i + 1][1]:
+            return False
+    return True
 
-    def __init__(self, *args, **kwargs):
-        if args:
-            self.prazno = False
-            self.vsebina = args[0]
-            self.levo = kwargs.get('levo', Drevo())
-            self.desno = kwargs.get('desno', Drevo())
-        else:
-            self.prazno = True
-
-    def __repr__(self, zamik = ''):
-        if self.prazno:
-          return 'Drevo()'.format(zamik)
-        elif self.levo.prazno and self.desno.prazno:
-          return 'Drevo({1})'.format(zamik, self.vsebina)
-        else:
-          return 'Drevo({1},\n{0}      levo = {2},\n{0}      desno = {3})'.\
-            format(
-              zamik,
-              self.vsebina,
-              self.levo.__repr__(zamik + '             '),
-              self.desno.__repr__(zamik + '              ')
-            )
-
-    def __eq__(self, other):
-        return ((self.prazno and other.prazno) or
-                (not self.prazno and not other.prazno and
-                 self.vsebina == other.vsebina and
-                 self.levo == other.levo and
-                 self.desno == other.desno))
-
-    def odrezi(self, n):
-        if not self.prazno:
-            if n == 0:
-                self.prazno = True
-            else:
-                self.levo.odrezi(n-1)
-                self.desno.odrezi(n-1)
-
-    def potroji(self):
-        if not self.prazno:
-            self.levo.potroji()
-            self.desno.potroji()
-            self.vsebina = Drevo(self.vsebina, levo=Drevo(self.vsebina), desno=Drevo(self.vsebina))
-
-# =====================================================================@029268=
+# =====================================================================@029307=
 # 2. podnaloga
-# Sestavite metodo `potroji(self)`, ki pod vsakim vozliščem doda še dve njegovi
-# kopiji. Levo poddrevo prestavi levo od leve kopije, desno poddrevo pa desno
-# od desne kopije. Zgled:
+# Sestavi funkcijo `sestaviZ(s, predmet)`, ki za neko množico $S_i$ in predmet,
+# podan s parom `(velikost, vrednost)`, sestavi in vrne množico $Z_{i+1}$.
 # 
-#     >>> d = Drevo(5, levo=Drevo(3), desno=Drevo(2))
-#     >>> d.potroji()
-#     >>> d
-#     Drevo(5,
-#           levo = Drevo(5,
-#                        levo = Drevo(3,
-#                                     levo = Drevo(3),
-#                                     desno = Drevo(3)),
-#                        desno = Drevo()),
-#           desno = Drevo(5,
-#                         levo = Drevo(),
-#                         desno = Drevo(2,
-#                                       levo = Drevo(2),
-#                                       desno = Drevo(2))))
+#     >>> sestaviZ([(0,0),(1,1),(2,2),(3,3)], (4,4))
+#     [(4,4),(5,5),(6,6),(7,7)]
 # =============================================================================
 
+def sestaviZ(s, predmet):
+    tabZ = []
+    for i in s:
+        tabZ.append((i[0] + predmet[0], i[1] + predmet[1]))
+    return tabZ
 
-# =====================================================================@029269=
+
+# =====================================================================@029308=
 # 3. podnaloga
-# Sestavite metodo `prezrcali(self)`, ki drevo prezrcali. Zgled:
+# Sestavi funkcijo `sestaviS(s, z)`, ki iz množic $S_i$ in $Z_{i+1}$ sestavi in
+# vrne množico $S_{i+1}$.
 # 
-#     >>> d = Drevo(5, levo=Drevo(3), desno=Drevo(2, levo=Drevo(1)))
-#     >>> d.prezrcali()
-#     >>> d
-#     Drevo(5,
-#           levo = Drevo(2,
-#                        desno = Drevo(1)),
-#           desno = Drevo(3)
+#     >>> sestaviS([(0,0),(11,6),(40,9),(51,15)], [(16,4),(27,10),(56,13),(67,19)])
+#     [(0,0),(11,6),(27,10),(51,15),(67,19)]
+# 
+# Bi lahko kaj "poenostavil", če bi poznal velikost nahrbtnika?
 # =============================================================================
 
-class Drevo(Drevo):
+def sestaviS(s, z):
+    rez = []
+    i = j = 0
+    while i < len(s) and j < len(z): # dokler je v obeh seznamih še kakšen element
+        # prepišemo tistega z manjšo prvo komponento
+        if s[i][0] < z[j][0]:
+            rez.append(s[i])
+            i += 1
+        elif s[i][0] > z[j][0]:
+            rez.append(z[j])
+            j += 1
+        else: # če sta prvi komponenti enaki
+            # prepišemo tistega z večjo drugo komponento
+            if s[i][1] > z[j][1]:
+                rez.append(s[i])
+            else:
+                rez.append(z[j])
+            i += 1
+            j += 1
+        # ignoriramo vse elemente, ki imajo drugo komponento premajhno
+        while i < len(s) and s[i][1] <= rez[-1][1]:
+            i += 1
+        while j < len(z) and z[j][1] <= rez[-1][1]:
+            j += 1
+    # ko zmanjka elementov v enem od seznamov, dodamo ostanek drugega seznama
+    rez += s[i:]
+    rez += z[j:]
+    return rez
 
-    def prezrcali(self):
-        if not self.prazno:
-            levo = self.levo.prezrcali()
-            desno = self.desno.prezrcali()
-            return Drevo(self.vsebina, levo=desno, desno=levo)
+# =====================================================================@029309=
+# 4. podnaloga
+# Sestavi funkcijo `mnoziceS(predmeti)`, ki za dani seznam predmetov, pri čemer
+# je vsak predmet predstavljen s parom `(velikost, vrednost)`, sestavi in vrne
+# seznam vseh množic $S$.
+# 
+#     >>> mnoziceS([(2,3),(4,5),(4,7),(6,8)])
+#     [[(0,0)],[(0,0),(2,3)],[(0,0),(2,3),(4,5),(6,8)],[(0,0),(2,3),(4,7),
+#        (6,10),(8,12),(10,15)],[(0,0),(2,3),(4,7),(6,10),(8,12),(10,15),
+#        (12,18),(14,20),(16,23)]]
+# =============================================================================
+
+def mnoziceS(predmeti):
+    s0 = [(0, 0)]
+    vsiS = [[(0, 0)]]
+    for i in predmeti:
+        tempZ = sestaviZ(s0, i)
+        tempS = sestaviS(s0, tempZ)
+        vsiS.append(tempS)
+        s0 = tempS
+    return vsiS
+
+# =====================================================================@029310=
+# 5. podnaloga
+# Sestavi funkcijo `nahrbtnik01(predmeti, velikost)`, ki reši problem 0/1
+# nahrbtnika, kjer je `predmeti` seznam predmetov, predstavljen kot prej,
+# `velikost` pa velikost nahrtnika. Funkcija naj vrne skupno velikost in
+# vrednost predmetov, ki jih damo v nahrbtnik.
+# 
+#     >>> nahrbtnik01([(2,3),(4,5),(4,7),(6,8)], 9)
+#     (8,12)
+# =============================================================================
+
+def nahrbtnik01(predmeti, velikost):
+    rez = mnoziceS(predmeti)[-1]
+    for i in range(len(rez)):
+        if rez[i][0] > velikost:
+            return rez[i-1]
+    return rez[-1]
+
+# =====================================================================@029311=
+# 6. podnaloga
+# Sestavi funkcijo `resitev01(predmeti, velikost)`, ki reši problem 0/1
+# nahrbtnika kot pri prejšnji podnalogi, le da vrne seznam ničel in enic, ki
+# določajo, katere predmete moramo izbrati. Če je rešitev več, naj vrne
+# katerokoli izmed njih.
+# 
+#     >>> resitev01([(2,3),(4,5),(4,7),(6,8)], 9)
+#     [0, 1, 1, 0]
+# =============================================================================
+
+def resitev01(predmeti, velikost):
+    vred = nahrbtnik01(predmeti, velikost)
+    tabS = mnoziceS(predmeti)
+    dol = len(predmeti)
+    rez = [0 for i in range(dol)]
+    for i in range(dol, 0, -1):
+        if (vred[0] - predmeti[i-1][0], vred[1] - predmeti[i-1][1]) in tabS[i]:
+            rez[i] = 1
+            vred = (vred[0] - predmeti[i-1][0], vred[1] - predmeti[i-1][1])
+    return rez
+# =====================================================================@029312=
+# 7. podnaloga
+# Sestavi funkcijo `resitve01(predmeti, velikost)`, ki reši problem 0/1
+# nahrbtnika kot pri prejšnji podnalogi, le da vrne seznam vseh možnih rešitev.
+# Vrstni red rešitev v seznamu ni pomemben.
+# 
+#     >>> resitve01([(2,4),(4,5),(4,7),(6,8)], 9)
+#     [[0, 1, 1, 0], [1, 0, 0, 1]]
+# =============================================================================
+
+# =====================================================================@029313=
+# 8. podnaloga
+# Sestavi funkcijo `resitev0n(predmeti, velikost)`, ki reši malo spremenjen
+# problem nahrbtnika. Vzamemo lahko več enakih predmetov, koliko posameznih
+# predmetov imamo na voljo pa je dodano pri opisu posameznega predmeta. Namesto
+# para (velikost, cena) imamo torej trojko (velikost, cena, količina). Funkcija
+# naj vrne seznam celih števil, ki določajo, koliko katerih predmetov moramo
+# vzeti. Če je rešitev več, naj vrne katerokoli izmed njih. Namig: pretvori
+# problem na običajen problem 0/1 nahrbtnika.
+# 
+#     >>> resitev0n([(2,3,2),(4,5,3),(4,7,1),(6,8,2)], 15)
+#     [2, 0, 1, 1]
+# =============================================================================
+
 
 
 
@@ -670,77 +728,133 @@ def _validate_current_file():
     Check.initialize(file_parts)
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI2N30:1mskdu:VY95qzxhbkFLETOYCp8tfswFJ8A'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTMwNn0:1n5R27:TKtYdJYsLBojZ0f3_drS-1Mye1k'
         try:
             test_data = [
-                (["d = Drevo(5, levo=Drevo(3, levo=Drevo(1)), desno=Drevo(2, levo=Drevo(6), desno=Drevo(9)))",
-                  "d.odrezi(2)"], {'d': Drevo(5, levo = Drevo(3), desno = Drevo(2))}),
-                (["d = Drevo(5, levo=Drevo(3, levo=Drevo(1)), desno=Drevo(2, levo=Drevo(6), desno=Drevo(9)))",
-                  "d.odrezi(10)"], {'d': Drevo(5, levo=Drevo(3, levo=Drevo(1)), desno=Drevo(2, levo=Drevo(6), desno=Drevo(9)))}),
-                (["d = Drevo(5, levo=Drevo(3, levo=Drevo(1)), desno=Drevo(2, levo=Drevo(6), desno=Drevo(9)))",
-                  "d.odrezi(3)"], {'d': Drevo(5, levo=Drevo(3, levo=Drevo(1)), desno=Drevo(2, levo=Drevo(6), desno=Drevo(9)))}),
-                (["d = Drevo(5, levo=Drevo(3, levo=Drevo(1)), desno=Drevo(2, levo=Drevo(6), desno=Drevo(9)))",
-                  "d.odrezi(1)"], {'d': Drevo(5)}),
-                (["d = Drevo(5, levo=Drevo(3, levo=Drevo(1)), desno=Drevo(2, levo=Drevo(6), desno=Drevo(9)))",
-                  "d.odrezi(0)"], {'d': Drevo()}),
-                (["d = Drevo(5, levo=Drevo(4, desno=Drevo(2)), desno=Drevo(3, levo=Drevo(4), desno=Drevo(4)))",
-                  "d.odrezi(1)"], {'d': Drevo(5)}),
-                (["d = Drevo(5, levo=Drevo(4, desno=Drevo(2)), desno=Drevo(3, levo=Drevo(4), desno=Drevo(4)))",
-                  "d.odrezi(2)"], {'d': Drevo(5, levo=Drevo(4), desno=Drevo(3))}),
-                (["d = Drevo(5, levo=Drevo(4, desno=Drevo(2)), desno=Drevo(3, levo=Drevo(4), desno=Drevo(4)))",
-                  "d.odrezi(3)"],
-                {'d': Drevo(5, levo=Drevo(4, desno=Drevo(2)), desno=Drevo(3, levo=Drevo(4), desno=Drevo(4)))}),
+                ('preveri([(0,0),(3,7),(4,9),(8,12),(11,17),(20,33)])', True),
+                ('preveri([])', False),
+                ('preveri([(0,0)])', True),
+                ('preveri([(1,2)])', False),
+                ('preveri([(0,0),(5,9)])', True),
+                ('preveri([(0,0),(-5,9)])', False),
+                ('preveri([(0,0),(5,-9)])', False),
+                ('preveri([(0,0),(0,9)])', False),
+                ('preveri([(0,0),(45,6),(56,12),(72,20),(98,19),(96,21),(103,23),(102,25),(128,28),(144,32)])', False),
+                ('preveri([(0,0),(45,6),(56,12),(72,16),(98,19),(96,21),(103,23),(102,25),(128,28),(144,32)])', False),
+                ('preveri([(0,0),(45,6),(56,12),(72,16),(98,19),(99,21),(103,23),(106,25),(128,28),(144,32)])', True),
             ]
-            for td in test_data:
-                if not Check.run(*td):
+            for data in test_data:
+                if not Check.equal(*data):
                     break
-            _drevesa = [Drevo(), Drevo()]
-            for i in range(1, 10):
-                _drevesa.append(Drevo(i, levo=_drevesa[-1], desno=_drevesa[-1]))
-            for i in range(10, 1, -1):
-                _drevesa[9].odrezi(i)
-                Check.secret(_drevesa[9])
         except:
             Check.error("Testi sprožijo izjemo\n  {0}",
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI2OH0:1mskdu:zchdpnigZcASsdhC1PqIpKP9wP8'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTMwN30:1n5R27:vq98UxCmo3HWMagAuL-mMz9Dy7A'
         try:
             test_data = [
-                (["d = Drevo(5, levo=Drevo(3), desno=Drevo(2))",
-                  "d.potroji()"], {'d': Drevo(5, levo = Drevo(5, levo = Drevo(3, levo = Drevo(3), desno = Drevo(3)), desno = Drevo()), desno = Drevo(5, levo = Drevo(), desno = Drevo(2, levo = Drevo(2), desno = Drevo(2))))}),
-                (["d = Drevo(3)",
-                  "d.potroji()"], {'d': Drevo(3, levo=Drevo(3), desno=Drevo(3))}),
-                (["d = Drevo(1, levo=Drevo(2), desno=Drevo(3))",
-                  "d.potroji()"], {'d': Drevo(1, levo=Drevo(1, levo=Drevo(2, levo=Drevo(2), desno=Drevo(2))), desno=Drevo(1, desno=Drevo(3, levo=Drevo(3), desno=Drevo(3))))})
+                ('sestaviZ([(0,0),(1,1),(2,2),(3,3)], (4,4))', [(4,4),(5,5),(6,6),(7,7)]),
+                ('sestaviZ([(0,0),(11,6),(27,10),(51,15),(67,19)], (32,7))', [(32,7),(43,13),(59,17),(83,22),(99,26)]),
             ]
-            for td in test_data:
-                if not Check.run(*td):
+            for data in test_data:
+                if not Check.equal(*data):
                     break
-            _drevo = Drevo(1, levo=Drevo(2), desno=Drevo(3))
-            for i in range(1, 4):
-                _drevo.potroji()
-                Check.secret(_drevo)
         except:
             Check.error("Testi sprožijo izjemo\n  {0}",
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTI2OX0:1mskdu:wPOKLhqtIWu09tW6X7Z0Vq-nnoo'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTMwOH0:1n5R27:6CLT1pvbrx-v_DuVc1eMpJuuOFA'
         try:
             test_data = [
-                (["d = Drevo(5, levo=Drevo(3), desno=Drevo(2))",
-                  "d.prezrcali()"], {'d': Drevo(5, levo=Drevo(2), desno=Drevo(3))}),
-                (["d = Drevo(3)",
-                  "d.prezrcali()"], {'d': Drevo(3)}),
-                (["d = Drevo()",
-                  "d.prezrcali()"], {'d': Drevo()}),
-                (["d = Drevo(5, levo=Drevo(3), desno=Drevo(2, levo=Drevo(1)))",
-                  "d.prezrcali()"], {'d': Drevo(5, levo=Drevo(2, desno=Drevo(1)), desno=Drevo(3))})
+                ('sestaviS([(0,0)], [(11,6)])', [(0,0),(11,6)]),
+                ('sestaviS([(0,0),(11,6)], [(40,9),(51,15)])', [(0,0),(11,6),(40,9),(51,15)]),
+                ('sestaviS([(0,0),(11,6),(40,9),(51,15)], [(16,4),(27,10),(56,13),(67,19)])', [(0,0),(11,6),(27,10),(51,15),(67,19)]),
+                ('sestaviS([(0,0),(11,6),(27,10),(51,15),(67,19)], [(32,7),(43,13),(59,17),(83,22),(99,26)])', [(0,0),(11,6),(27,10),(43,13),(51,15),(59,17),(67,19),(83,22),(99,26)]),
+                ('sestaviS([(0,0),(11,6),(27,10),(43,13),(51,15),(59,17),(67,19),(83,22),(99,26)], [(45,6),(56,12),(72,16),(88,19),(96,21),(104,23),(112,25),(128,28),(144,32)])', [(0,0),(11,6),(27,10),(43,13),(51,15),(59,17),(67,19),(83,22),(99,26),(128,28),(144,32)]),
             ]
-            for td in test_data:
-                if not Check.run(*td):
+            for data in test_data:
+                if not Check.equal(*data):
+                    break
+        except:
+            Check.error("Testi sprožijo izjemo\n  {0}",
+                        "\n  ".join(traceback.format_exc().split("\n"))[:-2])
+
+    if Check.part():
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTMwOX0:1n5R27:i935zih8T2NDCoshiXbxoRDmZ-M'
+        try:
+            test_data = [
+                ('mnoziceS([(2,3),(4,5),(4,7),(6,8)])', [[(0,0)],[(0,0),(2,3)],[(0,0),(2,3),(4,5),(6,8)],[(0,0),(2,3),(4,7),(6,10),(8,12),(10,15)],[(0,0),(2,3),(4,7),(6,10),(8,12),(10,15),(12,18),(14,20),(16,23)]]),
+                ('mnoziceS([(11,6),(40,9),(16,4),(32,7),(45,6),(48,7),(9,5),(44,9)])', [[(0,0)],[(0,0),(11,6)],[(0,0),(11,6),(40,9),(51,15)],[(0,0),(11,6),(27,10),(51,15),(67,19)],[(0,0),(11,6),(27,10),(43,13),(51,15),(59,17),(67,19),(83,22),(99,26)],[(0,0),(11,6),(27,10),(43,13),(51,15),(59,17),(67,19),(83,22),(99,26),(128,28),(144,32)],[(0,0),(11,6),(27,10),(43,13),(51,15),(59,17),(67,19),(83,22),(99,26),(128,28),(131,29),(144,32),(147,33),(176,35),(192,39)],[(0,0),(9,5),(11,6),(20,11),(36,15),(52,18),(60,20),(68,22),(76,24),(92,27),(108,31),(137,33),(140,34),(153,37),(156,38),(185,40),(201,44)],[(0,0),(9,5),(11,6),(20,11),(36,15),(52,18),(60,20),(68,22),(76,24),(92,27),(104,29),(108,31),(120,33),(136,36),(152,40),(181,42),(184,43),(197,46),(200,47),(229,49),(245,53)]]),
+            ]
+            for data in test_data:
+                if not Check.equal(*data):
+                    break
+        except:
+            Check.error("Testi sprožijo izjemo\n  {0}",
+                        "\n  ".join(traceback.format_exc().split("\n"))[:-2])
+
+    if Check.part():
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTMxMH0:1n5R27:lbFmpucjFXhsFiHBSrfJY6bE980'
+        try:
+            test_data = [
+                ('nahrbtnik01([(2,3),(4,5),(4,7),(6,8)], 9)', (8,12)),
+                ('nahrbtnik01([(2,3),(4,5),(4,7),(6,8)], 13)', (12,18)),
+                ('nahrbtnik01([(11,6),(40,9),(16,4),(32,7),(45,6),(48,7),(9,5),(44,9)], 160)', (152, 40)),
+                ('nahrbtnik01([(11,6),(40,9),(16,4),(32,7),(45,6),(48,7),(9,5),(44,9)], 300)', (245, 53)),
+            ]
+            for data in test_data:
+                if not Check.equal(*data):
+                    break
+        except:
+            Check.error("Testi sprožijo izjemo\n  {0}",
+                        "\n  ".join(traceback.format_exc().split("\n"))[:-2])
+
+    if Check.part():
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTMxMX0:1n5R27:LEeHN6fbovvjdE7YUyI0KaLwC_Y'
+        try:
+            test_data = [
+                ('resitev01([(2,3),(4,5),(4,7),(6,8)], 9)', [0, 1, 1, 0]),
+                ('resitev01([(2,3),(4,5),(4,7),(6,8)], 13)', [1, 0, 1, 1]),
+                ('resitev01([(11,6),(40,9),(16,4),(32,7),(45,6),(48,7),(9,5),(44,9)], 160)', [1, 1, 1, 1, 0, 0, 1, 1]),
+                ('resitev01([(11,6),(40,9),(16,4),(32,7),(45,6),(48,7),(9,5),(44,9)], 300)', [1, 1, 1, 1, 1, 1, 1, 1]),
+            ]
+            for data in test_data:
+                if not Check.equal(*data):
+                    break
+        except:
+            Check.error("Testi sprožijo izjemo\n  {0}",
+                        "\n  ".join(traceback.format_exc().split("\n"))[:-2])
+
+    if Check.part():
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTMxMn0:1n5R27:8WjYQMZwgngw6QBnqjie_Vccy7o'
+        try:
+            test_data = [
+                ('resitve01([(2,3),(4,5),(4,7),(6,8)], 9)', [[0, 1, 1, 0]]),
+                ('resitve01([(2,3),(4,5),(4,7),(6,8)], 13)', [[1, 0, 1, 1]]),
+                ('sorted(resitve01([(2,4),(4,5),(4,7),(6,8)], 9))', [[0, 1, 1, 0], [1, 0, 0, 1]]),
+                ('resitve01([(11,6),(40,9),(16,4),(32,7),(45,6),(48,7),(9,5),(44,9)], 160)', [[1, 1, 1, 1, 0, 0, 1, 1]]),
+                ('resitve01([(11,6),(40,9),(16,4),(32,7),(45,6),(48,7),(9,5),(44,9)], 300)', [[1, 1, 1, 1, 1, 1, 1, 1]]),
+                ('sorted(resitve01([(10,8),(42,7),(16,9),(45,4),(45,3),(68,24),(9,5),(44,4)], 70))', [[0, 0, 0, 0, 0, 1, 0, 0], [1, 1, 1, 0, 0, 0, 0, 0]]),
+            ]
+            for data in test_data:
+                if not Check.equal(*data):
+                    break
+        except:
+            Check.error("Testi sprožijo izjemo\n  {0}",
+                        "\n  ".join(traceback.format_exc().split("\n"))[:-2])
+
+    if Check.part():
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTMxM30:1n5R27:wO9dB80OQlZOeKMed5Ru9boPRVE'
+        try:
+            test_data = [
+                ('resitev0n([(2,3,2),(4,5,3),(4,7,1),(6,8,2)], 15)', [2, 0, 1, 1]),
+                ('resitev0n([(2,3,2),(4,5,3),(4,7,1),(6,8,2)], 25)', [2, 1, 1, 2]),
+                ('resitev0n([(11,3,2),(40,9,2),(16,4,1),(32,7,3),(45,6,2),(48,7,1),(9,5,5),(44,9,1)], 200)', [2, 2, 1, 1, 0, 0, 5, 0]),
+            ]
+            for data in test_data:
+                if not Check.equal(*data):
                     break
         except:
             Check.error("Testi sprožijo izjemo\n  {0}",

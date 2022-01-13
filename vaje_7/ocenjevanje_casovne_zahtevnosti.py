@@ -58,7 +58,6 @@ def vsota3(n):
 
 
 potence1 = (2, 1, 3)
-
 # =====================================================================@029229=
 # 2. podnaloga
 # Dane naj bodo sledeče funkcije na seznamih:
@@ -84,7 +83,6 @@ potence1 = (2, 1, 3)
 # =============================================================================
 
 potence2 = (1, 1, 2)
-
 # =====================================================================@029230=
 # 3. podnaloga
 # Dane naj bodo sledeče funkcije, ki izračunajo sled kvadratne matrike
@@ -115,7 +113,6 @@ potence2 = (1, 1, 2)
 # =============================================================================
 
 potence3 = (2, 1, 1)
-
 # =====================================================================@029231=
 # 4. podnaloga
 # Dane naj bodo sledeče funkcije, ki iščejo dani element v urejenem seznamu:
@@ -175,7 +172,8 @@ potence3 = (2, 1, 1)
 #     'O(1)', 'O(n)', 'O(n^2)', 'O(log n)', 'O(n log n)', 'O(n^3)'.
 # =============================================================================
 
-zahtevnosti4 = ('O(n)', 'O(n)', 'O(log n)', 'O(log n)', 'O(n)')
+zahtevnosti4 = ('O(n)', 'O(n)', 'O(n log n)', 'O(log n)', 'O(log n)')
+
 
 
 
@@ -738,7 +736,7 @@ def _validate_current_file():
     Check.initialize(file_parts)
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIyOH0:1mnezy:S-aCxC_5KRaET1L9EYCA1cP4_FM'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIyOH0:1mpr3y:zVCKV0fodLHze9L3uwl3IRqrEd8'
         try:
             if not isinstance(potence1, tuple):
                 Check.error('Spremenljivka potence1 ni nabor.')
@@ -754,7 +752,7 @@ def _validate_current_file():
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIyOX0:1mnezy:n7yP9qcKFbuup12Hu02WjMxqyPE'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIyOX0:1mpr3y:9Y5rXQN_ZED0rfajZjsx_-FnUOE'
         try:
             if not isinstance(potence2, tuple):
                 Check.error('Spremenljivka potence2 ni nabor.')
@@ -770,7 +768,7 @@ def _validate_current_file():
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzMH0:1mnezy:6XjmOTBMxAFgHhDioy4Aj_tzBUU'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzMH0:1mpr3y:9_p0uo3usGlnGx9g-f09QyZtuvQ'
         try:
             if not isinstance(potence3, tuple):
                 Check.error('Spremenljivka potence3 ni nabor.')
@@ -786,7 +784,7 @@ def _validate_current_file():
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzMX0:1mnezy:sycVbyKIIWuVNQLj0k8SKJDy05s'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzMX0:1mpr3y:CYLfF21Lx85H5XxKKG45JaNctf0'
         try:
             if not isinstance(zahtevnosti4, tuple):
                 Check.error('Spremenljivka zahtevnosti4 ni nabor.')

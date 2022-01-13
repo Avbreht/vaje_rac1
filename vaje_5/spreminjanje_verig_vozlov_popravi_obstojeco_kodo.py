@@ -20,14 +20,16 @@
 #     ['sreda', 'četrtek', 'petek', 'sobota']
 # =============================================================================
 from veriga_vozlov import Vozel, dodaj_na_konec, dodaj_na_zacetek, vrni_seznam, iz_seznama
-def vstavi_na_mesto(prvi, mesto, x):
+
+def vstavi_na_mesto(prvi, n, x):
     if n == 0:
         return dodaj_na_zacetek(prvi, x)
+    vozel = prvi
     for i in range(n):
-        if vozel.naslednji is None:
-            vozel.naslednji = Vozel(None)
-        vozel = vozel.naslendji
-   retunr prvi
+        if i == n:
+            vozel = dodaj_na_zacetek(vozel, x)
+        vozel = vozel.naslednji
+    return prvi
 # =====================================================================@029189=
 # 2. podnaloga
 # V datoteki je definirana funkcija `vstavi_v_urejenega(prvi, x)`, ki podatek
@@ -41,12 +43,13 @@ def vstavi_na_mesto(prvi, mesto, x):
 #     [1, 2, 3, 4, 7, 8]
 # =============================================================================
 from veriga_vozlov import Vozel, dodaj_na_konec, dodaj_na_zacetek, vrni_seznam, iz_seznama
+
 def vstavi_v_urejenega(prvi, x):
     if x <= prvi.podatek:
-        v = Vozel(x)
+        v = dodaj_na_zacetek(prvi, x)
         return v
     if prvi.naslednji is None:
-        Vozel(x) = prvi.naslednji
+        prvi = dodaj_na_konec(prvi, x)
     else:
         prvi.naslednji = vstavi_v_urejenega(prvi.naslednji, x+1)
     return prvi

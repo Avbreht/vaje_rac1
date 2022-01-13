@@ -20,6 +20,21 @@
 #     Drevo(1, levo=Drevo(3, levo=Drevo(9, levo=Drevo(5)), desno=Drevo(6, ...)), ...)
 # =============================================================================
 
+from dvojisko_drevo import Drevo
+
+drevo1 = Drevo(1, levo=Drevo(3, levo=Drevo(9, levo=Drevo(5)), desno=Drevo(6, levo=(Drevo(7)))), desno=Drevo(4, desno=Drevo(8, levo=(Drevo(2)))))
+
+
+def drevo_vmesni_premi(vmesni, premi):
+    '''Vrni dvojiško drevo z danim vmesnim in premim pogledom.'''
+    if len(vmesni) == 0:
+        return Drevo()
+    i = vmesni.index(premi[0])
+    levo = drevo_vmesni_premi(vmesni[:i], premi[1:i + 1])
+    desno = drevo_vmesni_premi(vmesni[i + 1:], premi[i + 1:])
+    return Drevo(premi[0], levo=levo, desno=desno)
+
+
 # =====================================================================@029288=
 # 2. podnaloga
 # Sestavite funkcijo `drevo_vmesni_obratni(vmesni, obratni)`, ki iz seznama
@@ -30,6 +45,15 @@
 #     Drevo(1, levo=Drevo(3, levo=Drevo(9, levo=Drevo(5)), desno=Drevo(6, ...)), ...)
 # =============================================================================
 
+def drevo_vmesni_obratni(vmesni, obratni):
+    '''Vrni dvojiško drevo z danim vmesnim in obratnim pogledom.'''
+    if len(vmesni) == 0:
+        return Drevo()
+    i = vmesni.index(obratni[-1])
+    levo = drevo_vmesni_obratni(vmesni[:i], obratni[:i])
+    desno = drevo_vmesni_obratni(vmesni[i + 1:], obratni[i:-1])
+    return Drevo(obratni[-1], levo=levo, desno=desno)
+
 # =====================================================================@029289=
 # 3. podnaloga
 # Sestavite funkcijo `drevo_vmesni_nivojski(vmesni, nivojski)`, ki iz seznama
@@ -39,6 +63,17 @@
 #     >>> drevo_vmesni_nivojski([5, 9, 3, 7, 6, 1, 4, 2, 8], [1, 3, 4, 9, 6, 8, 5, 7, 2])
 #     Drevo(1, levo=Drevo(3, levo=Drevo(9, levo=Drevo(5)), desno=Drevo(6, ...)), ...)
 # =============================================================================
+
+def drevo_vmesni_nivojski(vmesni, nivojski):
+    '''Vrni dvojiško drevo z danim vmesnim in nivojskim pogledom.'''
+    if len(vmesni) == 0:
+        return Drevo()
+    i = vmesni.index(nivojski[0])
+    vmesni_levo = vmesni[:i]
+    vmesni_desno = vmesni[i + 1:]
+    levo = drevo_vmesni_nivojski(vmesni_levo, [x for x in nivojski if x in vmesni_levo])
+    desno = drevo_vmesni_nivojski(vmesni_desno, [x for x in nivojski if x in vmesni_desno])
+    return Drevo(nivojski[0], levo=levo, desno=desno)
 
 # =====================================================================@029290=
 # 4. podnaloga
@@ -57,6 +92,9 @@
 #      / \     \       / \   /
 #     4   7     3     4   7 3
 # =============================================================================
+
+def drevesa_premi_obratni(premi, obratni):
+    return
 
 # =====================================================================@029291=
 # 5. podnaloga

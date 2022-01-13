@@ -67,10 +67,10 @@ class VerizniSeznam:
 
     def vstavi_na_zacetek(self, podatek):
         if self._zacetek is None:
-            self._zacetek = podatek
+            self._zacetek = Vozel(podatek)
         else:
-            self._zacetek = podatek
-            self._konec = self._zacetek
+            self._zacetek = self._zacetek
+            self._konec = None
 
 
 # =====================================================================@029198=

@@ -42,7 +42,54 @@
 # dobil recimo plačo 1200)
 # =============================================================================
 
-# =====================================================================@029271=
+class Drevo:
+
+    def __init__(self, *args, **kwargs):
+        if len(args) > 0:
+            self.prazno = False
+            self.ime = args[0]
+            self.placa = args[1]
+            self.levo = kwargs.get('levo', Drevo())
+            self.desno = kwargs.get('desno', Drevo())
+        else:
+            self.prazno = True
+
+    def __repr__(self):
+        if self.prazno:
+            return "Drevo()"
+        else:
+            opis = repr(self.ime) + ", " + repr(self.placa)
+            if not self.levo.prazno: opis += ", levo={0}".format(self.levo)
+            if not self.desno.prazno: opis += ", desno={0}".format(self.desno)
+            return "Drevo({0})".format(opis)
+
+    # def odprava_krivic(self):
+    #     if not self.prazno:
+    #         if not self.levo.prazno and not self.desno.prazno:
+    #             if self.placa < (self.levo.placa + self.desno.placa):
+    #                 return (self.levo.placa + self.desno.placa - self.placa) + self.levo.odprava_krivic() + self.desno.odprava_krivic()
+    #             else:
+    #                 return self.levo.odprava_krivic() + self.desno.odprava_krivic()
+    #     else:
+    #         return 0
+
+    def vsota_placa(self):
+        """
+        Vrne par dveh števil, kjer je prvo število vsota vseh povišic
+        in drugo število nova plača korena.
+        """
+        if self.prazno:
+            return 0, float('-inf')
+        popravkiLevo, placaSefaLevega = self.levo.vsota_placa()
+        popravkiDesno, placaSefaDesnega = self.desno.vsota_placa()
+        novaPlaca = max(self.placa, max(placaSefaLevega, placaSefaDesnega) + 100)
+        return popravkiLevo + popravkiDesno + (novaPlaca - self.placa), novaPlaca
+
+    def odprava_krivic(self):
+        povisice, _ = self.vsota_placa()
+        return povisice
+
+        # =====================================================================@029271=
 # 2. podnaloga
 # Direktor bi sindikaliste rad prepričal, da se razburjajo po nepotrebnem. Rad
 # bi imel seznam imen vseh tistih uslužbencev, ki bi prejeli povišice. (Od vseh

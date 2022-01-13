@@ -7,6 +7,13 @@
 # in `False` sicer.
 # =============================================================================
 
+def nicelni_pari_v_urejenem(seznam):
+    for i in range(len(seznam)):
+        for j in range(len(seznam)):
+            if i != j and seznam[i] + seznam[j] == 0:
+                return True
+    return False
+
 # =====================================================================@029237=
 # 2. podnaloga
 # Sestavite funkcijo `nicelni_pari_v_neurejenem(seznam)`, ki vrne `True`, če v
@@ -14,6 +21,9 @@
 # in `False` sicer.
 # =============================================================================
 
+def nicelni_pari_v_neurejenem(seznam):
+    seznam.sort()
+    return nicelni_pari_v_urejenem(seznam)
 
 
 
@@ -577,7 +587,7 @@ def _validate_current_file():
     Check.initialize(file_parts)
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzNn0:1mng1h:BHFFK93yap0nMHo4UxAd2gnA-qM'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzNn0:1mpqyh:TDxEmq9qci62GxcqsPlFuzdD0OI'
         try:
             Check.equal('nicelni_pari_v_urejenem([])', False)
             Check.equal('nicelni_pari_v_urejenem([-3, 2, 3, 10])', True)
@@ -589,7 +599,7 @@ def _validate_current_file():
                         "\n  ".join(traceback.format_exc().split("\n"))[:-2])
 
     if Check.part():
-        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzN30:1mng1h:-TpqgAvRTZPoESRJvp6TNEYNtfY'
+        Check.current_part['token'] = 'eyJ1c2VyIjoyNzAyLCJwYXJ0IjoyOTIzN30:1mpqyh:HqYwrOY24WGPIXVQUIghIskU2uU'
         try:
             Check.equal('nicelni_pari_v_neurejenem([])', False)
             Check.equal('nicelni_pari_v_neurejenem([-3, 2, 10, 3])', True)

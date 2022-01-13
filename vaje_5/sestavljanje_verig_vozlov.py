@@ -39,26 +39,41 @@ def stevilska_veriga(a, b):
 #     [7, 5, 1, 3, 9]
 # =============================================================================
 
-def sodi_in_lihi(v):
-    s = 0
-    l = 0
-    while v.naslednji is not None:
-        print(v.podatek)
-        if v.podatek % 2 == 0:
-            if s == 0:
-                v1 = Vozel(v.podatek)
-            else:
-                dodaj_na_konec(v1, v.podatek)
-            s += 1
-        else:
-            if l == 0:
-                v2 = Vozel(v.podatek)
-            else:
-                dodaj_na_konec(v2, v.podatek)
-            l += 1
-        v = v.naslednji
+# def sodi_in_lihi(v):
+#     s = 0
+#     l = 0
+#     while v.naslednji is not None:
+#         print(v.podatek)
+#         if v.podatek % 2 == 0:
+#             if s == 0:
+#                 v1 = Vozel(v.podatek)
+#             else:
+#                 dodaj_na_konec(v1, v.podatek)
+#             s += 1
+#         else:
+#             if l == 0:
+#                 v2 = Vozel(v.podatek)
+#             else:
+#                 dodaj_na_konec(v2, v.podatek)
+#             l += 1
+#         v = v.naslednji
+#     return v1, v2
 
+def sodi_in_lihi(v):
+    v1 = None
+    v2 = None
+    while v.naslednji is not None:
+        if v.podatek % 2 == 0:
+            v1 = dodaj_na_konec(v1, v.podatek)
+        else:
+            v2 = dodaj_na_konec(v2, v.podatek)
+        v = v.naslednji
+    if v.podatek % 2 == 0:
+        v1 = dodaj_na_konec(v1, v.podatek)
+    else:
+        v2 = dodaj_na_konec(v2, v.podatek)
     return v1, v2
+
 
 # =====================================================================@029184=
 # 3. podnaloga
@@ -74,6 +89,18 @@ def sodi_in_lihi(v):
 #     [11, 3, 4, 5]
 # =============================================================================
 
+def podvoji_verigo(prvi):
+    if prvi is None:
+        return None
+    else:
+        v = Vozel(prvi.podatek)
+        temp = prvi
+        while temp.naslednji is not None:
+            temp = temp.naslednji
+            v.naslednji = Vozel(temp.podatek)
+            v = v.naslednji
+        return v
+
 # =====================================================================@029185=
 # 4. podnaloga
 # Sestavite funkcijo `stakni_verigi(v1, v2)`, ki kot argumenta prejme referenci
@@ -86,6 +113,46 @@ def sodi_in_lihi(v):
 #     >>> v.vrni_seznam()
 #     [1, 2, 3, 4, 5, 6]
 # =============================================================================
+
+# def stakni_verigi(v1, v2):
+#     v = None
+#     while v1.naslednji is not None and v2.naslednji is not None:
+#         if v1.podatek < v2.podatek:
+#             v = dodaj_na_konec(v, v1.podatek)
+#             v1 = v1.naslednji
+#         else:
+#             v = dodaj_na_konec(v, v2.podatek)
+#             v2 = v2.naslednji
+#     while v1.naslednji is None and v2.podatek < v1.podatek:
+#         v = dodaj_na_konec(v, v2.podatek)
+#         v2 = v2.naslednji
+#     v = dodaj_na_konec(v, v1.podatek)
+#     while v2.naslednji is not None:
+#         v = dodaj_na_konec(v, v2.podatek)
+#         v2 = v2.naslednji
+#     v = dodaj_na_konec(v, v2.podatek)
+#     while v2.naslednji is None and v1.podatek < v2.podatek:
+#         v = dodaj_na_konec(v, v1.podatek)
+#         v1 = v1.naslednji
+#     v = dodaj_na_konec(v, v2.podatek)
+#     while v1.naslednji is not None:
+#         v = dodaj_na_konec(v, v1.podatek)
+#         v1 = v1.naslednji
+#     v = dodaj_na_konec(v, v1.podatek)
+#     return v
+
+def stakni_verigi(v1, v2):
+    v = None
+    while v1.naslednji is not None:
+        v = dodaj_na_konec(v, v1.podatek)
+        v1 = v1.naslednji
+    v = dodaj_na_konec(v, v1.podatek)
+    while v2.naslednji is not None:
+        v = dodaj_na_konec(v, v2.podatek)
+        v2 = v2.naslednji
+    v = dodaj_na_konec(v, v2.podatek)
+    return v
+
 
 # =====================================================================@029186=
 # 5. podnaloga
@@ -100,6 +167,14 @@ def sodi_in_lihi(v):
 #     >>> v.vrni_seznam()
 #     [7, 1, 5, 3, 2, 4, 9, 8]
 # =============================================================================
+
+def na_zadrgo(v1, v2):
+    v = None
+    while v1.naslednji is not None and v2.naslednji is not None:
+        v = dodaj_na_konec(v, v1.naslednji)
+        v1 = v1.naslednji
+        v = dodaj_na_konec(v, v2.naslednji)
+        v2 = v2.naslednji
 
 # =====================================================================@029187=
 # 6. podnaloga
